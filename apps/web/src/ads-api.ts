@@ -40,8 +40,10 @@ export async function createAdsDailyApiHandler(
 
   const query = new URL(request.url).searchParams
   const shopId = ShopIdSchema.safeParse(query.get("shopId"))
-  const days = Number(query.get("days") ?? "7")
-  if (!shopId.success || ![7, 14, 28].includes(days)) {
+  const today = dateInJakarta((dependencies.now ?? (() => new Date()))())
+  const startDate = query.get("startDate") ?? shopeeDate(new Date(today.getTime() - 7 * 86_400_000))
+  const endDate = query.get("endDate") ?? shopeeDate(new Date(today.getTime() - 86_400_000))
+  if (!shopId.success || !SHOPEE_DATE_RE.test(startDate) || !SHOPEE_DATE_RE.test(endDate)) {
     return json({ error: { code: "invalid_ads_request" } }, 400)
   }
 
@@ -52,11 +54,6 @@ export async function createAdsDailyApiHandler(
   })
   if (rows.length === 0) return json({ error: { code: "shop_not_accessible" } }, 403)
 
-  const today = dateInJakarta((dependencies.now ?? (() => new Date()))())
-  const start = new Date(today.getTime() - days * 86_400_000)
-  const end = new Date(today.getTime() - 86_400_000)
-  const startDate = shopeeDate(start)
-  const endDate = shopeeDate(end)
   try {
     const result = await dependencies.reader.readDaily({ shopId: shopId.data, startDate, endDate })
     return json({ data: { shopId: shopId.data, startDate, endDate, ...result } }, 200)

@@ -7,20 +7,15 @@ import {
   Center,
   Group,
   Loader,
-  SegmentedControl,
   SimpleGrid,
   Stack,
   Text,
 } from "@mantine/core"
 import { IconAlertCircle, IconArrowDownRight, IconArrowUpRight, IconPhoto } from "@tabler/icons-react"
+import dayjs from "dayjs"
 import { useEffect, useState } from "react"
-import {
-  api,
-  ApiError,
-  type HotListing,
-  type HotListingPeriod,
-  pickOrderType,
-} from "../api.ts"
+import { api, ApiError, type HotListing, pickOrderType } from "../api.ts"
+import { type DateRange, toShopeeDate } from "./RangePicker.tsx"
 
 const nf = new Intl.NumberFormat("id-ID")
 
@@ -34,13 +29,6 @@ function rupiahCompact(value: number | undefined): string {
 function percent(value: number | undefined): string {
   return value === undefined ? "—" : `${(value * 100).toFixed(1).replace(".", ",")}%`
 }
-
-const periodData: { label: string; value: HotListingPeriod }[] = [
-  { label: "Hari ini", value: "real_time" },
-  { label: "Kemarin", value: "yesterday" },
-  { label: "7 hari", value: "past7days" },
-  { label: "30 hari", value: "past30days" },
-]
 
 function Delta({ value }: { value: number | undefined }) {
   if (value === undefined) return null
@@ -81,28 +69,34 @@ function MetricCard({
   )
 }
 
-function formatBucket(t: number | undefined, period: HotListingPeriod): string {
+function formatBucket(t: number | undefined, hourly: boolean): string {
   if (t === undefined) return ""
   const date = new Date(t * 1000)
-  if (period === "real_time" || period === "yesterday") {
-    return date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
-  }
-  return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short" })
+  return hourly
+    ? date.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" })
+    : date.toLocaleDateString("id-ID", { day: "2-digit", month: "short" })
 }
 
-export function ShopPerformance({ shopId }: { shopId: string | null }) {
-  const [period, setPeriod] = useState<HotListingPeriod>("past7days")
+export function ShopPerformance({
+  shopId,
+  range,
+}: {
+  shopId: string | null
+  range: DateRange
+}) {
   const [data, setData] = useState<HotListing | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
+  const [start, end] = range
+
   useEffect(() => {
-    if (shopId === null) return
+    if (shopId === null || start === null || end === null) return
     let cancelled = false
     setLoading(true)
     setError(null)
     api
-      .hotListing(shopId, period)
+      .hotListing(shopId, toShopeeDate(start), toShopeeDate(end))
       .then((result) => {
         if (!cancelled) setData(result)
       })
@@ -118,34 +112,26 @@ export function ShopPerformance({ shopId }: { shopId: string | null }) {
     return () => {
       cancelled = true
     }
-  }, [shopId, period])
+  }, [shopId, start, end])
 
+  const hourly = start !== null && end !== null && dayjs(end).diff(dayjs(start), "day") <= 1
   const chosen = data ? pickOrderType(data.orderTypes) : undefined
   const metrics = chosen?.metrics
   const series = (chosen?.timeSeries ?? [])
     .filter((point) => point.t !== undefined)
-    .map((point) => ({ label: formatBucket(point.t, period), Penjualan: point.sales ?? 0 }))
+    .map((point) => ({ label: formatBucket(point.t, hourly), Penjualan: point.sales ?? 0 }))
   const topProducts = (chosen?.performance ?? []).slice(0, 6)
 
   return (
     <Card radius="lg" padding="lg" withBorder>
-      <Group justify="space-between" align="flex-start" wrap="wrap" mb="md">
-        <div>
-          <Text fw={800} fz="lg">
-            Performa Toko
-          </Text>
-          <Text fz={12.5} fw={600} c="dimmed" mt={2}>
-            Data penjualan langsung dari Shopee Business Insights
-          </Text>
-        </div>
-        <SegmentedControl
-          size="xs"
-          radius="md"
-          data={periodData}
-          value={period}
-          onChange={(value) => setPeriod(value as HotListingPeriod)}
-        />
-      </Group>
+      <div style={{ marginBottom: "var(--mantine-spacing-md)" }}>
+        <Text fw={800} fz="lg">
+          Performa Toko
+        </Text>
+        <Text fz={12.5} fw={600} c="dimmed" mt={2}>
+          Data penjualan langsung dari Shopee Business Insights
+        </Text>
+      </div>
 
       {shopId === null ? (
         <Text c="dimmed" ta="center" py="xl">

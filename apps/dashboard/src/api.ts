@@ -150,16 +150,16 @@ export const api = {
     return body.data?.raw ?? {}
   },
 
-  async hotListing(shopId: string, period: HotListingPeriod): Promise<HotListing> {
+  async hotListing(shopId: string, startDate: string, endDate: string): Promise<HotListing> {
     const body = await getJson<{ data: HotListing }>(
-      `/api/insights/hot-listing?shopId=${encodeURIComponent(shopId)}&period=${encodeURIComponent(period)}`,
+      `/api/insights/hot-listing?shopId=${encodeURIComponent(shopId)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
     )
     return body.data
   },
 
-  async adsDaily(shopId: string, days: 7 | 14 | 28): Promise<AdsDaily> {
+  async adsDaily(shopId: string, startDate: string, endDate: string): Promise<AdsDaily> {
     const body = await getJson<{ data: AdsDaily }>(
-      `/api/ads/daily?shopId=${encodeURIComponent(shopId)}&days=${days}`,
+      `/api/ads/daily?shopId=${encodeURIComponent(shopId)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
     )
     return body.data
   },

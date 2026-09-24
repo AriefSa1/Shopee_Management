@@ -1,9 +1,12 @@
 import { ActionIcon, Burger, Button, Group, Text } from "@mantine/core"
 import { IconPlus, IconRefresh } from "@tabler/icons-react"
+import { type DateRange, RangePicker } from "./RangePicker.tsx"
 import type { DashboardView } from "./Sidebar.tsx"
 
 export function TopBar({
   view,
+  range,
+  onRangeChange,
   onRefresh,
   onConnect,
   refreshing,
@@ -11,12 +14,15 @@ export function TopBar({
   onToggleMobileNav,
 }: {
   view: DashboardView
+  range: DateRange
+  onRangeChange: (range: DateRange) => void
   onRefresh: () => void
   onConnect: () => void
   refreshing: boolean
   mobileNavOpen: boolean
   onToggleMobileNav: () => void
 }) {
+  const showRange = view === "dashboard" || view === "ads" || view === "inspektur"
   return (
     <Group h="100%" px="lg" gap="sm" wrap="nowrap" style={{ background: "#fff" }}>
       <Burger
@@ -48,6 +54,7 @@ export function TopBar({
       </div>
 
       <Group gap="sm" wrap="nowrap" style={{ marginLeft: "auto" }}>
+        {showRange ? <RangePicker value={range} onChange={onRangeChange} /> : null}
         <ActionIcon
           hiddenFrom="sm"
           variant="default"

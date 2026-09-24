@@ -8,6 +8,14 @@ export type DateRange = [string | null, string | null]
 
 const FMT = "YYYY-MM-DD"
 
+// Shared default (last 7 days) so every page starts on the same range.
+export const defaultRange: DateRange = [dayjs().subtract(6, "day").format(FMT), dayjs().format(FMT)]
+
+// Convert a picker date (YYYY-MM-DD) to the DD-MM-YYYY the Shopee APIs expect.
+export function toShopeeDate(isoDate: string): string {
+  return dayjs(isoDate).format("DD-MM-YYYY")
+}
+
 function preset(startOffset: number, endOffset = 0): DateRange {
   return [
     dayjs().subtract(startOffset, "day").format(FMT),

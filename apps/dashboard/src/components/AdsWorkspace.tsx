@@ -20,6 +20,7 @@ import { IconAd, IconExternalLink, IconInfoCircle, IconSearch } from "@tabler/ic
 import { useEffect, useMemo, useState } from "react"
 import { ADS_ENDPOINTS, adsDocumentationUrl } from "../ads-catalog.ts"
 import { api, ApiError, type AdsDaily, type AdsDailyRow, type Connection, type Store, storeLabel } from "../api.ts"
+import { type DateRange, toShopeeDate } from "./RangePicker.tsx"
 
 const areas = ["Akun", "Rekomendasi", "Performa", "Iklan Produk", "GMV Max"] as const
 const rupiah = new Intl.NumberFormat("id-ID", { style: "currency", currency: "IDR", maximumFractionDigits: 0 })
@@ -36,6 +37,7 @@ export function AdsWorkspace({
   activeShopId,
   onShopChange,
   onConnect,
+  range,
   refreshTick,
 }: {
   stores: Store[]
@@ -43,21 +45,22 @@ export function AdsWorkspace({
   activeShopId: string | null
   onShopChange: (shopId: string) => void
   onConnect: () => void
+  range: DateRange
   refreshTick: number
 }) {
   const [query, setQuery] = useState("")
   const [operation, setOperation] = useState("Semua")
-  const [days, setDays] = useState<7 | 14 | 28>(7)
-  const [data, setData] = useState<{ days: 7 | 14 | 28; payload: AdsDaily } | null>(null)
+  const [data, setData] = useState<AdsDaily | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const activeStore = stores.find((store) => store.id === activeShopId)
   const connection = connections.find((item) => item.shopId === activeShopId)
   const connectionReady = connection?.state === "ready"
-  const visibleData = data?.days === days && data.payload.shopId === activeShopId ? data.payload : null
+  const [start, end] = range
+  const visibleData = data && data.shopId === activeShopId ? data : null
 
   useEffect(() => {
-    if (activeShopId === null || !connectionReady) {
+    if (activeShopId === null || !connectionReady || start === null || end === null) {
       setData(null)
       setError(null)
       setLoading(false)
@@ -67,14 +70,21 @@ export function AdsWorkspace({
     setData(null)
     setLoading(true)
     setError(null)
-    api.adsDaily(activeShopId, days)
-      .then((result) => { if (!cancelled) setData({ days, payload: result }) })
+    api
+      .adsDaily(activeShopId, toShopeeDate(start), toShopeeDate(end))
+      .then((result) => {
+        if (!cancelled) setData(result)
+      })
       .catch((cause) => {
         if (!cancelled) setError(cause instanceof ApiError ? cause.code : "error")
       })
-      .finally(() => { if (!cancelled) setLoading(false) })
-    return () => { cancelled = true }
-  }, [activeShopId, connectionReady, days, refreshTick])
+      .finally(() => {
+        if (!cancelled) setLoading(false)
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [activeShopId, connectionReady, start, end, refreshTick])
 
   const expense = visibleData ? total(visibleData.daily, "expense") : undefined
   const gmv = visibleData ? total(visibleData.daily, "direct_gmv") : undefined
@@ -142,21 +152,14 @@ export function AdsWorkspace({
       </Card>
 
       <Card radius="lg" padding="lg" withBorder aria-busy={loading}>
-        <Group justify="space-between" align="flex-start" wrap="wrap" mb="md">
-          <div>
-            <Text fw={800} fz="lg">Performa Iklan</Text>
-            <Text fz="sm" c="dimmed">
-              {visibleData ? "Performa CPC harian dari Shopee untuk toko terpilih." : "Ringkasan akan terisi setelah API Ads tersambung."}
-            </Text>
-          </div>
-          <SegmentedControl
-            aria-label="Periode performa Ads"
-            data={[{ label: "7 hari", value: "7" }, { label: "14 hari", value: "14" }, { label: "28 hari", value: "28" }]}
-            value={String(days)}
-            onChange={(value) => setDays(Number(value) as 7 | 14 | 28)}
-            size="xs"
-          />
-        </Group>
+        <div style={{ marginBottom: "var(--mantine-spacing-md)" }}>
+          <Text fw={800} fz="lg">Performa Iklan</Text>
+          <Text fz="sm" c="dimmed">
+            {visibleData
+              ? `Performa CPC harian dari Shopee (${visibleData.startDate} – ${visibleData.endDate}).`
+              : "Ringkasan akan terisi setelah API Ads tersambung."}
+          </Text>
+        </div>
         <Text role="status" aria-live="polite" fz="xs" c="dimmed" mb="sm">
           {loading
             ? "Memuat performa iklan."

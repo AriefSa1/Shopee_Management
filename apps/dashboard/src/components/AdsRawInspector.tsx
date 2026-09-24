@@ -12,10 +12,9 @@ import {
   Text,
 } from "@mantine/core"
 import { IconInfoCircle } from "@tabler/icons-react"
-import dayjs from "dayjs"
 import { useEffect, useState } from "react"
 import { type AdsRaw, type AdsRawResponses, api, ApiError, type Store, storeLabel } from "../api.ts"
-import { type DateRange, RangePicker } from "./RangePicker.tsx"
+import { type DateRange, toShopeeDate } from "./RangePicker.tsx"
 
 const apiSections: { key: keyof AdsRawResponses; api: string; note: string }[] = [
   { key: "totalBalance", api: "get_total_balance", note: "Saldo kredit iklan (real-time)" },
@@ -36,10 +35,6 @@ const apiSections: { key: keyof AdsRawResponses; api: string; note: string }[] =
   { key: "gmsDeletedItem", api: "list_gms_user_deleted_item", note: "Item GMV Max yang dihapus" },
 ]
 
-function shopeeDate(isoDate: string): string {
-  return dayjs(isoDate).format("DD-MM-YYYY")
-}
-
 function RawBlock({ value }: { value: unknown }) {
   const empty = value === null || value === undefined
   return (
@@ -56,25 +51,21 @@ function RawBlock({ value }: { value: unknown }) {
   )
 }
 
-const defaultRange: DateRange = [
-  dayjs().subtract(6, "day").format("YYYY-MM-DD"),
-  dayjs().format("YYYY-MM-DD"),
-]
-
 export function AdsRawInspector({
   stores,
   activeShopId,
   onShopChange,
   connectionReady,
+  range,
   refreshTick,
 }: {
   stores: Store[]
   activeShopId: string | null
   onShopChange: (shopId: string) => void
   connectionReady: boolean
+  range: DateRange
   refreshTick: number
 }) {
-  const [range, setRange] = useState<DateRange>(defaultRange)
   const [data, setData] = useState<AdsRaw | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -91,7 +82,7 @@ export function AdsRawInspector({
     setLoading(true)
     setError(null)
     api
-      .adsRaw(activeShopId, shopeeDate(start), shopeeDate(end))
+      .adsRaw(activeShopId, toShopeeDate(start), toShopeeDate(end))
       .then((result) => {
         if (!cancelled) setData(result)
       })
@@ -121,19 +112,16 @@ export function AdsRawInspector({
             {data ? ` Rentang: ${data.startDate} – ${data.endDate}.` : ""}
           </Text>
         </div>
-        <Group gap="sm" wrap="wrap">
-          <Select
-            aria-label="Pilih toko"
-            data={stores.map((store) => ({ value: store.id, label: storeLabel(store) }))}
-            value={activeShopId}
-            onChange={(value) => value && onShopChange(value)}
-            placeholder="Pilih toko"
-            allowDeselect={false}
-            w={200}
-            disabled={stores.length === 0}
-          />
-          <RangePicker value={range} onChange={setRange} />
-        </Group>
+        <Select
+          aria-label="Pilih toko"
+          data={stores.map((store) => ({ value: store.id, label: storeLabel(store) }))}
+          value={activeShopId}
+          onChange={(value) => value && onShopChange(value)}
+          placeholder="Pilih toko"
+          allowDeselect={false}
+          w={200}
+          disabled={stores.length === 0}
+        />
       </Group>
 
       {activeShopId === null || !connectionReady ? (

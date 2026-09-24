@@ -8,6 +8,7 @@ import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
 import { Login } from "./components/Login.tsx"
 import { ProductCatalog } from "./components/ProductCatalog.tsx"
 import { ProductStatusDonut } from "./components/ProductStatusDonut.tsx"
+import { type DateRange, defaultRange } from "./components/RangePicker.tsx"
 import { ShopPerformance } from "./components/ShopPerformance.tsx"
 import { type DashboardView, Sidebar } from "./components/Sidebar.tsx"
 import { TopBar } from "./components/TopBar.tsx"
@@ -23,6 +24,7 @@ export function App() {
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const [view, setView] = useState<DashboardView>("dashboard")
+  const [range, setRange] = useState<DateRange>(defaultRange)
   const [refreshTick, setRefreshTick] = useState(0)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
@@ -127,6 +129,8 @@ export function App() {
       <AppShell.Header withBorder>
         <TopBar
           view={view}
+          range={range}
+          onRangeChange={setRange}
           onRefresh={onRefresh}
           onConnect={onConnect}
           refreshing={baseLoading || catalogLoading}
@@ -138,7 +142,7 @@ export function App() {
       <AppShell.Main>
         {view === "dashboard" ? (
           <Stack gap="lg">
-            <ShopPerformance shopId={activeShopId} />
+            <ShopPerformance shopId={activeShopId} range={range} />
 
             <Grid gap="lg">
               <Grid.Col span={{ base: 12, lg: 5 }}>
@@ -157,6 +161,7 @@ export function App() {
               activeShopId={activeShopId}
               onShopChange={setActiveShopId}
               onConnect={onConnect}
+              range={range}
               refreshTick={refreshTick}
             />
             <AdsProductCampaigns
@@ -175,6 +180,7 @@ export function App() {
             connectionReady={
               connections.find((item) => item.shopId === activeShopId)?.state === "ready"
             }
+            range={range}
             refreshTick={refreshTick}
           />
         ) : (
