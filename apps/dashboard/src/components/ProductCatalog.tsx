@@ -1,4 +1,4 @@
-import { Alert, Badge, Card, Group, Image, Select, Table, Text, TextInput } from "@mantine/core"
+import { Alert, Badge, Box, Card, Group, Image, Select, Table, Text, TextInput } from "@mantine/core"
 import { IconAlertCircle, IconPhoto, IconSearch, IconStar } from "@tabler/icons-react"
 import { useMemo, useState } from "react"
 import { type Product, type Publication, type Store, storeLabel } from "../api.ts"
@@ -139,16 +139,24 @@ export function ProductCatalog({
                   <Table.Tr key={String(product.productId)}>
                     <Table.Td>
                       <Group gap="sm" wrap="nowrap">
-                        <Image
-                          src={image}
-                          w={44}
-                          h={44}
-                          radius="md"
-                          fallbackSrc="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg'/>"
-                          fit="cover"
-                        >
-                          <IconPhoto size={18} />
-                        </Image>
+                        {image ? (
+                          <Image src={image} w={44} h={44} radius="md" fit="cover" />
+                        ) : (
+                          <Box
+                            w={44}
+                            h={44}
+                            style={{
+                              flexShrink: 0,
+                              borderRadius: 8,
+                              background: "#F1F5F9",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                            }}
+                          >
+                            <IconPhoto size={18} color="#94A3B8" />
+                          </Box>
+                        )}
                         <div style={{ minWidth: 0 }}>
                           <Text fz={13.5} fw={700} lineClamp={2}>
                             {product.name ?? "(tanpa nama)"}
