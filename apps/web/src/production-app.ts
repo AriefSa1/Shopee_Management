@@ -1,11 +1,13 @@
 import type { CatalogApiDependencies } from "../../../packages/catalog/src/catalog-api.ts"
 import type { PostgresExecutor } from "../../../packages/delivery/src/postgres-delivery.ts"
 import type { DatabaseReadinessProbe } from "../../../packages/domain/src/readiness.ts"
+import type { ShopeeMarketingInsightsReader } from "../../../packages/integrations/src/shopee-business-insights.ts"
 import type { ShopeeProductDetailReader } from "../../../packages/integrations/src/shopee-product-detail.ts"
 import type { OAuthWebApiDependencies } from "../../../packages/oauth/src/oauth-api.ts"
 import { createWebApp } from "./app.ts"
 import { createConnectionStatusApiHandler } from "./connection-status-api.ts"
 import type { InternalSessionService } from "./internal-session.ts"
+import { createMarketingInsightsApiHandler } from "./marketing-insights-api.ts"
 import { createProductDetailApiHandler } from "./product-detail-api.ts"
 import {
   createShopeeConnectionUiHandler,
@@ -21,6 +23,7 @@ export type ProductionWebAppDependencies = {
   readonly executor?: PostgresExecutor
   readonly catalog?: CatalogApiDependencies
   readonly productDetailReader?: ShopeeProductDetailReader
+  readonly marketingInsightsReader?: ShopeeMarketingInsightsReader
   readonly spaPublicDir?: string
 }
 
@@ -103,6 +106,16 @@ export function createProductionWebApp(dependencies: ProductionWebAppDependencie
         authenticate: dependencies.session.authenticate,
         executor,
         reader: productDetailReader,
+      }),
+    )
+  }
+  const marketingInsightsReader = dependencies.marketingInsightsReader
+  if (marketingInsightsReader !== undefined) {
+    app.get("/api/insights/hot-listing", (context) =>
+      createMarketingInsightsApiHandler(context.req.raw, {
+        authenticate: dependencies.session.authenticate,
+        executor,
+        reader: marketingInsightsReader,
       }),
     )
   }

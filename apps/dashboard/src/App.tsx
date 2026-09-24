@@ -1,41 +1,18 @@
 import { AppShell, Center, Grid, Loader, Stack } from "@mantine/core"
 import { useCallback, useEffect, useState } from "react"
-import {
-  api,
-  ApiError,
-  type Connection,
-  type ConnectionsSummary,
-  type Product,
-  type Store,
-} from "./api.ts"
+import { api, ApiError, type Connection, type Product, type Store } from "./api.ts"
 import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
 import { Login } from "./components/Login.tsx"
 import { ProductCatalog } from "./components/ProductCatalog.tsx"
 import { ProductStatusDonut } from "./components/ProductStatusDonut.tsx"
+import { ShopPerformance } from "./components/ShopPerformance.tsx"
 import { type DashboardView, Sidebar } from "./components/Sidebar.tsx"
-import { StatCards } from "./components/StatCards.tsx"
 import { TopBar } from "./components/TopBar.tsx"
-
-const emptySummary: ConnectionsSummary = {
-  total: 0,
-  ready: 0,
-  awaitingExchange: 0,
-  expired: 0,
-  reauthRequired: 0,
-}
-
-function sumStat(products: Product[], key: "sale" | "views"): number {
-  return products.reduce((total, product) => {
-    const value = product.stats?.[key]
-    return total + (typeof value === "number" ? value : 0)
-  }, 0)
-}
 
 export function App() {
   const [authed, setAuthed] = useState<boolean | null>(null)
   const [stores, setStores] = useState<Store[]>([])
   const [connections, setConnections] = useState<Connection[]>([])
-  const [summary, setSummary] = useState<ConnectionsSummary>(emptySummary)
   const [activeShopId, setActiveShopId] = useState<string | null>(null)
   const [products, setProducts] = useState<Product[]>([])
   const [collectedAt, setCollectedAt] = useState<string | null>(null)
@@ -54,7 +31,6 @@ export function App() {
       const [storeList, connectionData] = await Promise.all([api.stores(), api.connections()])
       setStores(storeList)
       setConnections(connectionData.connections)
-      setSummary(connectionData.summary)
       setActiveShopId((current) => current ?? storeList[0]?.id ?? null)
     } catch (cause) {
       if (cause instanceof ApiError && cause.status === 401) setAuthed(false)
@@ -120,14 +96,6 @@ export function App() {
     return <Login onSuccess={() => setAuthed(true)} />
   }
 
-  const kpiValues = {
-    storeCount: stores.length,
-    readyCount: summary.ready,
-    productCount: products.length,
-    totalSold: sumStat(products, "sale"),
-    totalViews: sumStat(products, "views"),
-  }
-
   return (
     <AppShell
       layout="alt"
@@ -154,7 +122,7 @@ export function App() {
       <AppShell.Main>
         {view === "dashboard" ? (
           <Stack gap="lg">
-            <StatCards values={kpiValues} loading={baseLoading || catalogLoading} />
+            <ShopPerformance shopId={activeShopId} />
 
             <Grid gap="lg">
               <Grid.Col span={{ base: 12, lg: 5 }}>

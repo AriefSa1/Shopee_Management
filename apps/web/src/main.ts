@@ -6,6 +6,7 @@ import {
   ConfigValidationError,
   parseWebConfig,
 } from "../../../packages/config/src/runtime-config.ts"
+import { createShopeeMarketingInsightsReader } from "../../../packages/integrations/src/shopee-business-insights.ts"
 import { createShopeeCatalogAdapter } from "../../../packages/integrations/src/shopee-product-catalog.ts"
 import { createShopeeProductDetailReader } from "../../../packages/integrations/src/shopee-product-detail.ts"
 import { createConfiguredDatabaseReadinessProbe } from "../../../packages/persistence/src/configured-database-readiness.ts"
@@ -105,6 +106,12 @@ function start(): void {
         authenticate: () => null,
       },
       productDetailReader: createShopeeProductDetailReader({
+        baseUrl: "https://partner.shopeemobile.com",
+        partnerId: oauthConfig.partnerId,
+        partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",
+        resolveAccess: createInlineCatalogAccessResolver({ environment: process.env, executor }),
+      }),
+      marketingInsightsReader: createShopeeMarketingInsightsReader({
         baseUrl: "https://partner.shopeemobile.com",
         partnerId: oauthConfig.partnerId,
         partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",

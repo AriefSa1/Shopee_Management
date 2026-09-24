@@ -149,6 +149,70 @@ export const api = {
     )
     return body.data?.raw ?? {}
   },
+
+  async hotListing(shopId: string, period: HotListingPeriod): Promise<HotListing> {
+    const body = await getJson<{ data: HotListing }>(
+      `/api/insights/hot-listing?shopId=${encodeURIComponent(shopId)}&period=${encodeURIComponent(period)}`,
+    )
+    return body.data
+  },
+}
+
+export type HotListingPeriod = "real_time" | "yesterday" | "past7days" | "past30days"
+
+export type HotListingMetrics = {
+  sales?: number
+  buyers?: number
+  orders?: number
+  units?: number
+  conversionRate?: number
+  productImpression?: number
+  productClicks?: number
+  clickThroughRate?: number
+  salesPctDiff?: number
+  ordersPctDiff?: number
+  unitsPctDiff?: number
+  conversionRatePctDiff?: number
+}
+
+export type HotListingTimePoint = {
+  t?: number
+  sales?: number
+  orders?: number
+  units?: number
+}
+
+export type HotListingProduct = {
+  itemId?: number
+  itemName?: string
+  image?: string
+  variationName?: string
+  sales?: number
+  units?: number
+  orders?: number
+  productImpression?: number
+}
+
+export type HotListingOrderType = {
+  orderType?: string
+  metrics: HotListingMetrics
+  timeSeries: HotListingTimePoint[]
+  performance: HotListingProduct[]
+}
+
+export type HotListing = {
+  shopId: string
+  period: HotListingPeriod
+  orderTypes: HotListingOrderType[]
+}
+
+// Prefer paid sales, then placed, then whatever the shop country returns.
+export function pickOrderType(list: HotListingOrderType[]): HotListingOrderType | undefined {
+  return (
+    list.find((entry) => entry.orderType === "paid") ??
+    list.find((entry) => entry.orderType === "placed") ??
+    list[0]
+  )
 }
 
 export function storeLabel(store: Store): string {
