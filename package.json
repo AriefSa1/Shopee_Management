@@ -21,7 +21,8 @@
     "lint": "biome check .",
     "ui:dev": "vite",
     "build:ui": "vite build",
-    "build": "tsc --noEmit && vite build"
+    "typecheck:all": "tsc --noEmit && tsc --noEmit -p apps/dashboard/tsconfig.json",
+    "build": "vite build"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
