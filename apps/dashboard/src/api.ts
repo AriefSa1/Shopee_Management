@@ -141,6 +141,13 @@ export const api = {
     )
     return body.data
   },
+
+  async productDetail(shopId: string, itemId: number | string): Promise<unknown> {
+    const body = await getJson<{ data?: { raw?: unknown } }>(
+      `/api/catalog/item?shopId=${encodeURIComponent(shopId)}&itemId=${encodeURIComponent(String(itemId))}`,
+    )
+    return body.data?.raw ?? {}
+  },
 }
 
 export function storeLabel(store: Store): string {

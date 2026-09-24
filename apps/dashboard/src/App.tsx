@@ -12,7 +12,7 @@ import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
 import { Login } from "./components/Login.tsx"
 import { ProductCatalog } from "./components/ProductCatalog.tsx"
 import { ProductStatusDonut } from "./components/ProductStatusDonut.tsx"
-import { Sidebar } from "./components/Sidebar.tsx"
+import { type DashboardView, Sidebar } from "./components/Sidebar.tsx"
 import { StatCards } from "./components/StatCards.tsx"
 import { TopBar } from "./components/TopBar.tsx"
 
@@ -42,6 +42,7 @@ export function App() {
   const [baseLoading, setBaseLoading] = useState(true)
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogError, setCatalogError] = useState<string | null>(null)
+  const [view, setView] = useState<DashboardView>("dashboard")
 
   useEffect(() => {
     void api.sessionStatus().then(setAuthed)
@@ -139,6 +140,8 @@ export function App() {
         <Sidebar
           stores={stores}
           connections={connections}
+          activeView={view}
+          onNavigate={setView}
           onConnect={onConnect}
           onLogout={() => void onLogout()}
         />
@@ -149,29 +152,30 @@ export function App() {
       </AppShell.Header>
 
       <AppShell.Main>
-        <Stack gap="lg">
-          <StatCards values={kpiValues} loading={baseLoading || catalogLoading} />
+        {view === "dashboard" ? (
+          <Stack gap="lg">
+            <StatCards values={kpiValues} loading={baseLoading || catalogLoading} />
 
-          <Grid gap="lg">
-            <Grid.Col span={{ base: 12, lg: 8 }}>
-              <ProductCatalog
-                stores={stores}
-                activeShopId={activeShopId}
-                onShopChange={setActiveShopId}
-                products={products}
-                loading={catalogLoading}
-                error={catalogError}
-                collectedAt={collectedAt}
-              />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, lg: 4 }}>
-              <Stack gap="lg">
+            <Grid gap="lg">
+              <Grid.Col span={{ base: 12, lg: 5 }}>
                 <ProductStatusDonut products={products} loading={catalogLoading} />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, lg: 7 }}>
                 <ConnectionStatus stores={stores} connections={connections} />
-              </Stack>
-            </Grid.Col>
-          </Grid>
-        </Stack>
+              </Grid.Col>
+            </Grid>
+          </Stack>
+        ) : (
+          <ProductCatalog
+            stores={stores}
+            activeShopId={activeShopId}
+            onShopChange={setActiveShopId}
+            products={products}
+            loading={catalogLoading}
+            error={catalogError}
+            collectedAt={collectedAt}
+          />
+        )}
       </AppShell.Main>
     </AppShell>
   )

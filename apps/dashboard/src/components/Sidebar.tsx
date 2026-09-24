@@ -12,10 +12,12 @@ import {
 } from "@tabler/icons-react"
 import { type Connection, connectionStateMetaOf, type Store, storeLabel } from "../api.ts"
 
-const items = [
-  { icon: IconLayoutGrid, label: "Dashboard", active: true },
+export type DashboardView = "dashboard" | "produk"
+
+const items: { icon: typeof IconLayoutGrid; label: string; view?: DashboardView }[] = [
+  { icon: IconLayoutGrid, label: "Dashboard", view: "dashboard" },
+  { icon: IconBox, label: "Produk", view: "produk" },
   { icon: IconShoppingCart, label: "Pesanan" },
-  { icon: IconBox, label: "Produk" },
   { icon: IconStack2, label: "Stok Gudang" },
   { icon: IconReportAnalytics, label: "Listing" },
   { icon: IconChartBar, label: "Analitik" },
@@ -25,11 +27,15 @@ const items = [
 export function Sidebar({
   stores,
   connections,
+  activeView,
+  onNavigate,
   onConnect,
   onLogout,
 }: {
   stores: Store[]
   connections: Connection[]
+  activeView: DashboardView
+  onNavigate: (view: DashboardView) => void
   onConnect: () => void
   onLogout: () => void
 }) {
@@ -56,16 +62,31 @@ export function Sidebar({
           MENU
         </Text>
         <Stack gap={3}>
-          {items.map((item) => (
-            <UnstyledButton key={item.label} className="navitem" data-active={item.active || undefined}>
-              <Group gap={12} wrap="nowrap">
-                <item.icon size={19} stroke={1.8} />
-                <Text fz="sm" fw={item.active ? 700 : 600} style={{ flex: 1 }}>
-                  {item.label}
-                </Text>
-              </Group>
-            </UnstyledButton>
-          ))}
+          {items.map((item) => {
+            const active = item.view !== undefined && item.view === activeView
+            const enabled = item.view !== undefined
+            return (
+              <UnstyledButton
+                key={item.label}
+                className="navitem"
+                data-active={active || undefined}
+                onClick={() => item.view && onNavigate(item.view)}
+                style={enabled ? undefined : { opacity: 0.45, cursor: "default" }}
+              >
+                <Group gap={12} wrap="nowrap">
+                  <item.icon size={19} stroke={1.8} />
+                  <Text fz="sm" fw={active ? 700 : 600} style={{ flex: 1 }}>
+                    {item.label}
+                  </Text>
+                  {enabled ? null : (
+                    <Text fz={10} fw={700} c="dimmed">
+                      Segera
+                    </Text>
+                  )}
+                </Group>
+              </UnstyledButton>
+            )
+          })}
         </Stack>
       </div>
 
