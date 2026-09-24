@@ -3,25 +3,18 @@ import {
   IconBox,
   IconBuildingStore,
   IconChartBar,
-  IconChevronDown,
   IconLayoutGrid,
+  IconLogout,
   IconPlus,
   IconReportAnalytics,
   IconShoppingCart,
   IconStack2,
 } from "@tabler/icons-react"
-import { channelMeta } from "../data.ts"
+import { type Connection, connectionStateMetaOf, type Store, storeLabel } from "../api.ts"
 
-type NavItem = {
-  icon: typeof IconLayoutGrid
-  label: string
-  active?: boolean
-  badge?: number
-}
-
-const items: NavItem[] = [
+const items = [
   { icon: IconLayoutGrid, label: "Dashboard", active: true },
-  { icon: IconShoppingCart, label: "Pesanan", badge: 28 },
+  { icon: IconShoppingCart, label: "Pesanan" },
   { icon: IconBox, label: "Produk" },
   { icon: IconStack2, label: "Stok Gudang" },
   { icon: IconReportAnalytics, label: "Listing" },
@@ -29,13 +22,19 @@ const items: NavItem[] = [
   { icon: IconBuildingStore, label: "Channel" },
 ]
 
-const stores: { label: string; channel: keyof typeof channelMeta }[] = [
-  { label: "Shopee · NinetyFour", channel: "shopee" },
-  { label: "Tokopedia · 94Media", channel: "tokopedia" },
-  { label: "TikTok Shop · 94", channel: "tiktok" },
-]
+export function Sidebar({
+  stores,
+  connections,
+  onConnect,
+  onLogout,
+}: {
+  stores: Store[]
+  connections: Connection[]
+  onConnect: () => void
+  onLogout: () => void
+}) {
+  const stateByShop = new Map(connections.map((connection) => [connection.shopId, connection.state]))
 
-export function Sidebar() {
   return (
     <Stack h="100%" gap="lg" p="md" style={{ background: "#fff" }}>
       <Group gap="sm" px={6}>
@@ -58,21 +57,12 @@ export function Sidebar() {
         </Text>
         <Stack gap={3}>
           {items.map((item) => (
-            <UnstyledButton
-              key={item.label}
-              className="navitem"
-              data-active={item.active || undefined}
-            >
+            <UnstyledButton key={item.label} className="navitem" data-active={item.active || undefined}>
               <Group gap={12} wrap="nowrap">
                 <item.icon size={19} stroke={1.8} />
                 <Text fz="sm" fw={item.active ? 700 : 600} style={{ flex: 1 }}>
                   {item.label}
                 </Text>
-                {item.badge ? (
-                  <Badge size="sm" color="orange" circle variant="filled" className="num">
-                    {item.badge}
-                  </Badge>
-                ) : null}
               </Group>
             </UnstyledButton>
           ))}
@@ -84,15 +74,32 @@ export function Sidebar() {
           TOKO TERHUBUNG
         </Text>
         <Stack gap={4}>
-          {stores.map((store) => (
-            <Group key={store.label} gap={10} px={10} py={6} wrap="nowrap">
-              <Box w={9} h={9} style={{ borderRadius: 3, background: channelMeta[store.channel].color }} />
-              <Text fz={13} fw={600} c="#334155">
-                {store.label}
-              </Text>
-            </Group>
-          ))}
-          <UnstyledButton px={10} py={6}>
+          {stores.length === 0 ? (
+            <Text fz={12.5} c="dimmed" px={10}>
+              Belum ada toko.
+            </Text>
+          ) : (
+            stores.map((store) => {
+              const state = stateByShop.get(store.id)
+              const meta = state ? connectionStateMetaOf(state) : undefined
+              return (
+                <Group key={store.id} gap={10} px={10} py={6} wrap="nowrap">
+                  <Box
+                    w={9}
+                    h={9}
+                    style={{
+                      borderRadius: 3,
+                      background: `var(--mantine-color-${meta?.color ?? "gray"}-6)`,
+                    }}
+                  />
+                  <Text fz={13} fw={600} c="#334155" truncate style={{ flex: 1 }}>
+                    {storeLabel(store)}
+                  </Text>
+                </Group>
+              )
+            })
+          )}
+          <UnstyledButton px={10} py={6} onClick={onConnect}>
             <Group gap={8} c="cyan.7">
               <IconPlus size={16} stroke={2.2} />
               <Text fz={13} fw={700}>
@@ -103,28 +110,18 @@ export function Sidebar() {
         </Stack>
       </div>
 
-      <Group
-        mt="auto"
-        gap={10}
-        p="xs"
-        wrap="nowrap"
-        style={{ borderRadius: 12, background: "#F8FAFC", border: "1px solid #EEF2F6" }}
-      >
-        <ThemeIcon size={34} radius="md" color="dark" variant="filled">
-          <Text fz={13} fw={700}>
-            AS
+      <UnstyledButton mt="auto" className="navitem" onClick={onLogout}>
+        <Group gap={12} wrap="nowrap">
+          <IconLogout size={19} stroke={1.8} />
+          <Text fz="sm" fw={600}>
+            Keluar
           </Text>
-        </ThemeIcon>
-        <div style={{ lineHeight: 1.2 }}>
-          <Text fz={13} fw={700}>
-            Arief S.
-          </Text>
-          <Text fz={11} fw={600} c="dimmed">
-            Owner
-          </Text>
-        </div>
-        <IconChevronDown size={16} style={{ marginLeft: "auto", color: "#94A3B8" }} />
-      </Group>
+        </Group>
+      </UnstyledButton>
+
+      <Badge variant="light" color="gray" radius="sm" style={{ alignSelf: "flex-start" }}>
+        Integrasi: Shopee
+      </Badge>
     </Stack>
   )
 }

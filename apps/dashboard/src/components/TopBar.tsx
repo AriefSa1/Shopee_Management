@@ -1,7 +1,15 @@
-import { ActionIcon, Button, Group, Indicator, Input, Text } from "@mantine/core"
-import { IconBell, IconCalendar, IconChevronDown, IconPlus, IconSearch } from "@tabler/icons-react"
+import { Button, Group, Text } from "@mantine/core"
+import { IconPlus, IconRefresh } from "@tabler/icons-react"
 
-export function TopBar() {
+export function TopBar({
+  onRefresh,
+  onConnect,
+  refreshing,
+}: {
+  onRefresh: () => void
+  onConnect: () => void
+  refreshing: boolean
+}) {
   return (
     <Group h="100%" px="lg" gap="lg" wrap="nowrap" style={{ background: "#fff" }}>
       <div style={{ flexShrink: 0 }}>
@@ -9,40 +17,31 @@ export function TopBar() {
           Dashboard
         </Text>
         <Text fz={12.5} fw={600} c="dimmed">
-          Ringkasan penjualan semua channel
+          Ringkasan toko &amp; katalog yang terhubung
         </Text>
       </div>
 
-      <Input
-        flex={1}
-        maw={420}
-        size="md"
-        radius="md"
-        placeholder="Cari pesanan, produk, atau SKU…"
-        leftSection={<IconSearch size={18} />}
-        styles={{ input: { background: "#F8FAFC" } }}
-        aria-label="Cari"
-      />
-
-      <Button
-        variant="default"
-        size="md"
-        radius="md"
-        leftSection={<IconCalendar size={17} />}
-        rightSection={<IconChevronDown size={15} />}
-      >
-        7 hari terakhir
-      </Button>
-
-      <Indicator color="orange" size={9} offset={6} withBorder>
-        <ActionIcon variant="default" size={42} radius="md" aria-label="Notifikasi">
-          <IconBell size={19} stroke={1.8} />
-        </ActionIcon>
-      </Indicator>
-
-      <Button size="md" radius="md" color="cyan" leftSection={<IconPlus size={17} stroke={2.4} />}>
-        Tambah Produk
-      </Button>
+      <Group gap="sm" wrap="nowrap" style={{ marginLeft: "auto" }}>
+        <Button
+          variant="default"
+          size="md"
+          radius="md"
+          leftSection={<IconRefresh size={17} />}
+          onClick={onRefresh}
+          loading={refreshing}
+        >
+          Muat ulang
+        </Button>
+        <Button
+          size="md"
+          radius="md"
+          color="cyan"
+          leftSection={<IconPlus size={17} stroke={2.4} />}
+          onClick={onConnect}
+        >
+          Hubungkan toko
+        </Button>
+      </Group>
     </Group>
   )
 }

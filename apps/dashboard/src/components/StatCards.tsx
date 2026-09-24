@@ -1,77 +1,97 @@
-import { Card, Group, SimpleGrid, Text, ThemeIcon } from "@mantine/core"
-import {
-  IconArrowDownRight,
-  IconArrowUpRight,
-  IconBox,
-  IconChartBar,
-  IconReceipt2,
-  IconShoppingCart,
-} from "@tabler/icons-react"
-import { type Kpi, kpis } from "../data.ts"
+import { Card, Group, SimpleGrid, Skeleton, Text, ThemeIcon } from "@mantine/core"
+import { IconBox, IconBuildingStore, IconEye, IconShoppingBag } from "@tabler/icons-react"
 
-const iconMap = {
-  sales: IconReceipt2,
-  orders: IconShoppingCart,
-  units: IconBox,
-  avg: IconChartBar,
-} as const
-
-const iconColor: Record<Kpi["icon"], string> = {
-  sales: "#0E7490",
-  orders: "#2563EB",
-  units: "#7C3AED",
-  avg: "#EA580C",
+export type KpiValues = {
+  storeCount: number
+  readyCount: number
+  productCount: number
+  totalSold: number
+  totalViews: number
 }
 
-function Sparkline({ color, up }: { color: string; up: boolean }) {
-  const path = up
-    ? "M2 24 L14 20 L26 22 L38 14 L50 17 L62 8 L74 11 L86 5"
-    : "M2 8 L14 12 L26 10 L38 15 L50 13 L62 19 L74 18 L86 23"
+const nf = new Intl.NumberFormat("id-ID")
+
+function KpiCard({
+  label,
+  value,
+  sub,
+  icon,
+  color,
+  tint,
+  loading,
+}: {
+  label: string
+  value: string
+  sub: string
+  icon: typeof IconBox
+  color: string
+  tint: string
+  loading: boolean
+}) {
+  const Icon = icon
   return (
-    <svg width="88" height="30" viewBox="0 0 88 30" fill="none" aria-hidden="true">
-      <path d={path} stroke={color} strokeWidth={2.2} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <Card radius="lg" padding="lg" withBorder>
+      <Group justify="space-between">
+        <Text fz="sm" fw={600} c="dimmed">
+          {label}
+        </Text>
+        <ThemeIcon size={34} radius="md" variant="light" style={{ background: tint }}>
+          <Icon size={17} color={color} />
+        </ThemeIcon>
+      </Group>
+      {loading ? (
+        <Skeleton height={30} width="60%" mt={12} radius="sm" />
+      ) : (
+        <Text className="num" fz={27} fw={700} mt={10}>
+          {value}
+        </Text>
+      )}
+      <Text fz={12} c="dimmed" mt={8}>
+        {sub}
+      </Text>
+    </Card>
   )
 }
 
-export function StatCards() {
+export function StatCards({ values, loading }: { values: KpiValues; loading: boolean }) {
   return (
     <SimpleGrid cols={{ base: 1, xs: 2, lg: 4 }} spacing="lg">
-      {kpis.map((kpi) => {
-        const Icon = iconMap[kpi.icon]
-        const up = kpi.delta >= 0
-        return (
-          <Card key={kpi.key} radius="lg" padding="lg" withBorder>
-            <Group justify="space-between">
-              <Text fz="sm" fw={600} c="dimmed">
-                {kpi.label}
-              </Text>
-              <ThemeIcon size={34} radius="md" variant="light" style={{ background: kpi.tint }}>
-                <Icon size={17} color={iconColor[kpi.icon]} />
-              </ThemeIcon>
-            </Group>
-
-            <Text className="num" fz={27} fw={700} mt={10}>
-              {kpi.value}
-              {kpi.unit ? (
-                <Text span fz={16} fw={600} c="dimmed">
-                  {kpi.unit}
-                </Text>
-              ) : null}
-            </Text>
-
-            <Group justify="space-between" mt={8}>
-              <Group gap={4} c={up ? "#15803D" : "#B91C1C"}>
-                {up ? <IconArrowUpRight size={14} stroke={2.4} /> : <IconArrowDownRight size={14} stroke={2.4} />}
-                <Text fz={12.5} fw={700}>
-                  {Math.abs(kpi.delta).toLocaleString("id-ID")}%
-                </Text>
-              </Group>
-              <Sparkline color={iconColor[kpi.icon]} up={up} />
-            </Group>
-          </Card>
-        )
-      })}
+      <KpiCard
+        label="Toko Terhubung"
+        value={nf.format(values.storeCount)}
+        sub={`${values.readyCount}/${values.storeCount} token siap`}
+        icon={IconBuildingStore}
+        color="#0E7490"
+        tint="#ECFEFF"
+        loading={loading}
+      />
+      <KpiCard
+        label="Produk (toko aktif)"
+        value={nf.format(values.productCount)}
+        sub="dari katalog Shopee"
+        icon={IconBox}
+        color="#2563EB"
+        tint="#EEF6FF"
+        loading={loading}
+      />
+      <KpiCard
+        label="Total Terjual"
+        value={nf.format(values.totalSold)}
+        sub="akumulasi item toko aktif"
+        icon={IconShoppingBag}
+        color="#7C3AED"
+        tint="#F3F0FF"
+        loading={loading}
+      />
+      <KpiCard
+        label="Total Dilihat"
+        value={nf.format(values.totalViews)}
+        sub="akumulasi tayangan"
+        icon={IconEye}
+        color="#EA580C"
+        tint="#FFF4EC"
+        loading={loading}
+      />
     </SimpleGrid>
   )
 }
