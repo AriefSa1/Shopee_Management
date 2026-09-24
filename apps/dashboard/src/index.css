@@ -11,6 +11,10 @@
 
 :root {
   --app-bg: #f5f8fb;
+  --ads-select-width: 13.75rem;
+  --ads-chart-height: 13.75rem;
+  --ads-table-min-width: 38.75rem;
+  --ads-search-min-width: 15rem;
 }
 
 body {
@@ -39,4 +43,14 @@ body {
 .navitem[data-active] {
   background: #ecfeff;
   color: #0e7490;
+}
+
+.ads-endpoint {
+  border: 1px solid var(--mantine-color-gray-2);
+  border-radius: var(--mantine-radius-md);
+  background: var(--mantine-color-gray-0);
+}
+
+.ads-endpoint-name {
+  overflow-wrap: anywhere;
 }

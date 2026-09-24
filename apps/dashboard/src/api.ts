@@ -156,6 +156,35 @@ export const api = {
     )
     return body.data
   },
+
+  async adsDaily(shopId: string, days: 7 | 14 | 28): Promise<AdsDaily> {
+    const body = await getJson<{ data: AdsDaily }>(
+      `/api/ads/daily?shopId=${encodeURIComponent(shopId)}&days=${days}`,
+    )
+    return body.data
+  },
+}
+
+export type AdsDailyRow = {
+  date: string
+  impression?: number
+  clicks?: number
+  ctr?: number
+  direct_order?: number
+  broad_order?: number
+  direct_gmv?: number
+  broad_gmv?: number
+  expense?: number
+  direct_roas?: number
+  broad_roas?: number
+}
+
+export type AdsDaily = {
+  shopId: string
+  startDate: string
+  endDate: string
+  daily: AdsDailyRow[]
+  partial: boolean
 }
 
 export type HotListingPeriod = "real_time" | "yesterday" | "past7days" | "past30days"

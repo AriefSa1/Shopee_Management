@@ -2,6 +2,7 @@ import { AppShell, Center, Grid, Loader, Stack } from "@mantine/core"
 import { useCallback, useEffect, useState } from "react"
 import { api, ApiError, type Connection, type Product, type Store } from "./api.ts"
 import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
+import { AdsWorkspace } from "./components/AdsWorkspace.tsx"
 import { Login } from "./components/Login.tsx"
 import { ProductCatalog } from "./components/ProductCatalog.tsx"
 import { ProductStatusDonut } from "./components/ProductStatusDonut.tsx"
@@ -20,6 +21,8 @@ export function App() {
   const [catalogLoading, setCatalogLoading] = useState(false)
   const [catalogError, setCatalogError] = useState<string | null>(null)
   const [view, setView] = useState<DashboardView>("dashboard")
+  const [refreshTick, setRefreshTick] = useState(0)
+  const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   useEffect(() => {
     void api.sessionStatus().then(setAuthed)
@@ -80,6 +83,7 @@ export function App() {
   }, [])
 
   const onRefresh = useCallback(() => {
+    setRefreshTick((current) => current + 1)
     void loadBase()
     if (activeShopId !== null) void loadCatalog(activeShopId)
   }, [loadBase, loadCatalog, activeShopId])
@@ -99,7 +103,7 @@ export function App() {
   return (
     <AppShell
       layout="alt"
-      navbar={{ width: 250, breakpoint: "md" }}
+      navbar={{ width: 250, breakpoint: "md", collapsed: { mobile: !mobileNavOpen } }}
       header={{ height: 72 }}
       padding="lg"
       styles={{ main: { background: "var(--app-bg)" } }}
@@ -109,14 +113,24 @@ export function App() {
           stores={stores}
           connections={connections}
           activeView={view}
-          onNavigate={setView}
+          onNavigate={(nextView) => {
+            setView(nextView)
+            setMobileNavOpen(false)
+          }}
           onConnect={onConnect}
           onLogout={() => void onLogout()}
         />
       </AppShell.Navbar>
 
       <AppShell.Header withBorder>
-        <TopBar onRefresh={onRefresh} onConnect={onConnect} refreshing={baseLoading || catalogLoading} />
+        <TopBar
+          view={view}
+          onRefresh={onRefresh}
+          onConnect={onConnect}
+          refreshing={baseLoading || catalogLoading}
+          mobileNavOpen={mobileNavOpen}
+          onToggleMobileNav={() => setMobileNavOpen((open) => !open)}
+        />
       </AppShell.Header>
 
       <AppShell.Main>
@@ -133,6 +147,15 @@ export function App() {
               </Grid.Col>
             </Grid>
           </Stack>
+        ) : view === "ads" ? (
+          <AdsWorkspace
+            stores={stores}
+            connections={connections}
+            activeShopId={activeShopId}
+            onShopChange={setActiveShopId}
+            onConnect={onConnect}
+            refreshTick={refreshTick}
+          />
         ) : (
           <ProductCatalog
             stores={stores}

@@ -83,3 +83,13 @@ The dashboard shell remains server-rendered. The OAuth connection page uses one 
 
 - The shell does not yet include authenticated shop selection, live catalog rows, or analytics charts.
 - The OAuth callback currently returns a safe JSON handoff result; a dedicated browser completion page remains future product work.
+
+## 9. React operator dashboard
+
+The React dashboard in `apps/dashboard` is a separate operator surface from the server-rendered status shell above. It uses Mantine's light theme with cyan as the primary action and status color, Plus Jakarta Sans for body and headings, Space Grotesk for tabular metrics, white bordered cards, and the existing `--app-bg` canvas. Keep new dashboard controls within Mantine's spacing, radius, and color tokens.
+
+The Ads workspace reuses the existing sidebar navigation, store selector, status alert, bordered cards, and search controls. Its endpoint row uses `gray.0` fill, `gray.2` border, and `md` radius. States are: no selected store, selected store with ready or unready token, loading or unavailable daily Ads data, documented read or action endpoint, the Ads Fácil endpoint unavailable for Seller In House System, and the two Shopee endpoints marked “coming offline soon”. The `—` metric value means unavailable, never zero. The CPC daily read uses a server-side shop-scoped adapter; links for all 25 endpoints remain available, and mutation controls do not appear until a server-side authorization and confirmation flow exists.
+
+Ads sizing tokens on the React surface: `--ads-select-width` (13.75rem), `--ads-chart-height` (13.75rem), `--ads-table-min-width` (38.75rem), and `--ads-search-min-width` (15rem). These give the store control, trend, scroll-contained table, and search field stable proportions across the Ads states.
+
+Below the `md` breakpoint, the shared navigation begins collapsed. A labeled burger button in the header opens it, and choosing a destination closes it so the page content is reachable. The four Ads metric cards become two columns at narrow widths; the daily table has its own horizontal scroll container without widening the page.
