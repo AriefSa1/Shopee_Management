@@ -11,6 +11,10 @@ import type {
   ShopeeCatalogAccessResolver,
 } from "../../../packages/integrations/src/shopee-product-catalog.ts"
 import { ShopeeCatalogProviderError } from "../../../packages/integrations/src/shopee-product-catalog.ts"
+import {
+  buildShopeeShopInfoRequest,
+  parseShopeeShopInfoResponse,
+} from "../../../packages/integrations/src/shopee-shop-info.ts"
 import { createRuntimeBoundKmsEnvelopeCodec } from "../../../packages/oauth/src/credential-encryption.ts"
 import { KmsMarketSchema } from "../../../packages/oauth/src/durable-contracts.ts"
 import {
@@ -127,7 +131,7 @@ export function createInlineCatalogAccessResolver(input: {
     const rows = await input.executor.query({
       name: "catalog.inline_access.binding",
       text: `SELECT sc.organization_id, sc.external_shop_id, sc.partner_application_id, sc.market,
-        scb.credential_subject_id, cs.revision
+        sc.shop_name, scb.credential_subject_id, cs.revision
         FROM shop_connections sc
         INNER JOIN shop_credential_bindings scb ON scb.organization_id = sc.organization_id
           AND scb.shop_id = sc.id AND scb.status = 'active'
@@ -181,7 +185,70 @@ export function createInlineCatalogAccessResolver(input: {
       throw new ShopeeCatalogProviderError(`catalog_access_refresh_failed_${result.reason}`)
     if (accessToken === undefined)
       throw new ShopeeCatalogProviderError("catalog_access_refresh_missing_token")
+    const existingShopName = row["shop_name"]
+    if (typeof existingShopName !== "string" || existingShopName.trim().length === 0) {
+      await backfillShopName({
+        executor: input.executor,
+        baseUrl,
+        partnerId,
+        partnerKey,
+        accessToken,
+        externalShopId,
+        internalShopId,
+      })
+    }
     return { accessToken, shop: { externalShopId, market } }
+  }
+}
+
+/**
+ * Best-effort enrichment of a connected shop's display name (Shopee
+ * get_shop_info), run when a catalog access refresh happens and the stored name
+ * is still missing. It backfills shops connected before name capture existed. It
+ * must never throw: a failure leaves the name unset and the catalog read
+ * proceeds normally.
+ */
+async function backfillShopName(input: {
+  readonly executor: PostgresExecutor
+  readonly baseUrl: string
+  readonly partnerId: string
+  readonly partnerKey: string
+  readonly accessToken: string
+  readonly externalShopId: ShopeeShopId
+  readonly internalShopId: string
+}): Promise<void> {
+  try {
+    const request = buildShopeeShopInfoRequest({
+      baseUrl: input.baseUrl,
+      partnerId: input.partnerId,
+      partnerKey: input.partnerKey,
+      accessToken: input.accessToken,
+      shopId: input.externalShopId,
+      timestamp: Math.floor(Date.now() / 1_000),
+    })
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 10_000)
+    let shopName: string | undefined
+    try {
+      const response = await fetch(request.url, {
+        method: "GET",
+        headers: { accept: "application/json" },
+        signal: controller.signal,
+      })
+      const result = parseShopeeShopInfoResponse(await response.json())
+      if (result.kind === "succeeded") shopName = result.shopName
+    } finally {
+      clearTimeout(timer)
+    }
+    const trimmed = shopName?.trim()
+    if (trimmed === undefined || trimmed.length === 0) return
+    await input.executor.query({
+      name: "catalog.inline_access.backfill_shop_name",
+      text: "UPDATE shop_connections SET shop_name = $2 WHERE id = $1 AND (shop_name IS NULL OR shop_name = '')",
+      params: [input.internalShopId, trimmed.slice(0, 255)],
+    })
+  } catch {
+    // no-excuse-ok: shop-name backfill is best-effort and must never fail a catalog read.
   }
 }
 
