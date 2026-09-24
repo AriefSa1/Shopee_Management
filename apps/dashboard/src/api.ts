@@ -7,6 +7,7 @@ export type Store = {
   market: string
   status: string
   createdAt: string
+  shopName?: string
 }
 
 export type ConnectionState = "ready" | "awaiting_exchange" | "expired" | "reauth_required"
@@ -151,7 +152,9 @@ export const api = {
 }
 
 export function storeLabel(store: Store): string {
-  return `Toko ${store.externalShopId}`
+  return store.shopName && store.shopName.trim().length > 0
+    ? store.shopName
+    : `Toko ${store.externalShopId}`
 }
 
 const connectionStateMeta: Record<ConnectionState, { label: string; color: string }> = {

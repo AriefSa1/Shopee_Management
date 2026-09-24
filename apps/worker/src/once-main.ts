@@ -1,5 +1,9 @@
 import { randomUUID } from "node:crypto"
 import { Pool } from "pg"
+import {
+  buildShopeeShopInfoRequest,
+  parseShopeeShopInfoResponse,
+} from "../../../packages/integrations/src/shopee-shop-info.ts"
 import { createRuntimeBoundKmsEnvelopeCodec } from "../../../packages/oauth/src/credential-encryption.ts"
 import { PostgresOAuthExchangeCommitter } from "../../../packages/oauth/src/postgres-oauth-exchange-committer.ts"
 import { PostgresOAuthExchangeQueue } from "../../../packages/oauth/src/postgres-oauth-exchange-queue.ts"
@@ -21,7 +25,10 @@ import {
   parseWorkerShopeeLiveOAuthConfig,
   ShopeeLiveOAuthConfigError,
 } from "./adapters/shopee-live-oauth-config.ts"
-import { createWorkerShopeeOAuthExchangeProvider } from "./adapters/shopee-oauth-exchange-provider.ts"
+import {
+  createWorkerShopeeOAuthExchangeProvider,
+  type ShopeeShopNameResolver,
+} from "./adapters/shopee-oauth-exchange-provider.ts"
 import { parseWorkerOnceConfig, runWorkerOnce, WorkerOnceConfigurationError } from "./once.ts"
 
 async function main(): Promise<void> {
@@ -49,12 +56,36 @@ async function main(): Promise<void> {
       now: () => new Date().toISOString(),
       nextIds: () => ({ credentialSubjectId: randomUUID(), grantId: randomUUID() }),
     })
+    const readShopName: ShopeeShopNameResolver = async (shopInput) => {
+      const shopInfoRequest = buildShopeeShopInfoRequest({
+        baseUrl: shopInput.baseUrl,
+        partnerId: shopInput.partnerId,
+        partnerKey: shopInput.partnerKey,
+        accessToken: shopInput.accessToken,
+        shopId: shopInput.shopId,
+        timestamp: Math.floor(Date.now() / 1_000),
+      })
+      const controller = new AbortController()
+      const timer = setTimeout(() => controller.abort(), shopeeConfiguration.requestTimeoutMs)
+      try {
+        const httpResponse = await fetch(shopInfoRequest.url, {
+          method: "GET",
+          headers: { accept: "application/json" },
+          signal: controller.signal,
+        })
+        const result = parseShopeeShopInfoResponse(await httpResponse.json())
+        return result.kind === "succeeded" ? result.shopName : undefined
+      } finally {
+        clearTimeout(timer)
+      }
+    }
     const provider = createWorkerShopeeOAuthExchangeProvider({
       baseUrl: shopeeConfiguration.baseUrl,
       now: Date.now,
       secrets: createEnvironmentShopeeSecretProvider(process.env),
       transport: createWorkerShopeeHttpsOAuthTransport(shopeeConfiguration),
       committer,
+      readShopName,
     })
     const queue = new PostgresOAuthExchangeQueue(executor)
     const workerId = randomUUID()

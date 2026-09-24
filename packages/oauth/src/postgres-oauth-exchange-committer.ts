@@ -1,16 +1,26 @@
-import type { ShopeeTokenExchangeResult } from "../../integrations/src/shopee-oauth.ts"
 import type { PostgresExecutor } from "../../delivery/src/postgres-delivery.ts"
-import { AuthorizationGrantIdSchema, CredentialSubjectIdSchema, OAUTH_REFRESH_CREDENTIAL_TTL_SECONDS, OAuthRefreshTokenSchema, type OAuthCallbackClaim, type WorkerExchangeEvidence } from "./model.ts"
+import type { ShopeeTokenExchangeResult } from "../../integrations/src/shopee-oauth.ts"
 import {
-  KmsEncryptionContextSchema,
   type EncryptedCredentialEnvelope,
+  KmsEncryptionContextSchema,
   type KmsEnvelopeCodec,
 } from "./durable-contracts.ts"
+import {
+  AuthorizationGrantIdSchema,
+  CredentialSubjectIdSchema,
+  OAUTH_REFRESH_CREDENTIAL_TTL_SECONDS,
+  type OAuthCallbackClaim,
+  OAuthRefreshTokenSchema,
+  type WorkerExchangeEvidence,
+} from "./model.ts"
 import { PostgresCredentialRepository } from "./postgres-credentials.ts"
 import { PostgresOAuthGrantRepository } from "./postgres-grants.ts"
 import { PostgresOAuthShopConnectionResolver } from "./postgres-shop-connection-resolver.ts"
 
-type SuccessfulShopeeTokenExchange = Extract<ShopeeTokenExchangeResult, { readonly kind: "succeeded" }>
+type SuccessfulShopeeTokenExchange = Extract<
+  ShopeeTokenExchangeResult,
+  { readonly kind: "succeeded" }
+>
 
 export type PostgresOAuthExchangeCommitterInput = {
   readonly executor: PostgresExecutor
@@ -22,7 +32,12 @@ export type PostgresOAuthExchangeCommitterInput = {
 
 export class ShopeeOAuthExchangeCommitError extends Error {
   readonly name = "ShopeeOAuthExchangeCommitError"
-  readonly reason: "invalid_key_version" | "invalid_time" | "invalid_exchange_expiry" | "shop_connection_not_found" | "token_encryption_failed"
+  readonly reason:
+    | "invalid_key_version"
+    | "invalid_time"
+    | "invalid_exchange_expiry"
+    | "shop_connection_not_found"
+    | "token_encryption_failed"
 
   constructor(reason: ShopeeOAuthExchangeCommitError["reason"]) {
     super("Shopee OAuth exchange could not be committed")
@@ -40,6 +55,7 @@ export class PostgresOAuthExchangeCommitter {
   async commit(input: {
     readonly claim: OAuthCallbackClaim
     readonly exchange: SuccessfulShopeeTokenExchange
+    readonly shopName?: string
   }): Promise<WorkerExchangeEvidence> {
     if (!Number.isInteger(this.input.keyVersion) || this.input.keyVersion < 1) {
       throw new ShopeeOAuthExchangeCommitError("invalid_key_version")
@@ -64,8 +80,19 @@ export class PostgresOAuthExchangeCommitter {
       throw new ShopeeOAuthExchangeCommitError("token_encryption_failed")
     }
     return this.input.executor.transaction(async (transaction) => {
-      const connection = await new PostgresOAuthShopConnectionResolver(transaction).resolve(input.claim)
-      if (connection === undefined) throw new ShopeeOAuthExchangeCommitError("shop_connection_not_found")
+      const connection = await new PostgresOAuthShopConnectionResolver(transaction).resolve(
+        input.claim,
+      )
+      if (connection === undefined)
+        throw new ShopeeOAuthExchangeCommitError("shop_connection_not_found")
+      const shopName = normalizeShopName(input.shopName)
+      if (shopName !== undefined) {
+        await transaction.query({
+          name: "oauth.shop_connections.set_shop_name",
+          text: "UPDATE shop_connections SET shop_name = $3 WHERE organization_id = $1 AND id = $2",
+          params: [input.claim.organizationId, connection.shopId, shopName],
+        })
+      }
       const credentials = new PostgresCredentialRepository(transaction)
       await credentials.saveSubject({
         organizationId: input.claim.organizationId,
@@ -88,7 +115,14 @@ export class PostgresOAuthExchangeCommitter {
         partnerApplicationId: input.claim.partnerApplicationId,
         grantKind: "shop_account",
         grantedAt,
-        subjects: [{ credentialSubjectId, revision: 1, keyVersion: envelope.keyVersion, shopIds: [connection.shopId] }],
+        subjects: [
+          {
+            credentialSubjectId,
+            revision: 1,
+            keyVersion: envelope.keyVersion,
+            shopIds: [connection.shopId],
+          },
+        ],
         authorizedShopId: input.claim.shopId,
       }
       await new PostgresOAuthGrantRepository(transaction).saveGrant({
@@ -104,6 +138,13 @@ export class PostgresOAuthExchangeCommitter {
   }
 }
 
+function normalizeShopName(value: string | undefined): string | undefined {
+  if (value === undefined) return undefined
+  const trimmed = value.trim()
+  if (trimmed.length === 0) return undefined
+  return trimmed.slice(0, 255)
+}
+
 function validInstant(value: string): string {
   const instant = Date.parse(value)
   if (!Number.isFinite(instant)) throw new ShopeeOAuthExchangeCommitError("invalid_time")
@@ -114,7 +155,7 @@ function exchangeExpiry(grantedAt: string, expiresIn: number): string {
   if (!Number.isInteger(expiresIn) || expiresIn < 1) {
     throw new ShopeeOAuthExchangeCommitError("invalid_exchange_expiry")
   }
-  const expiry = Date.parse(grantedAt) + (expiresIn * 1_000)
+  const expiry = Date.parse(grantedAt) + expiresIn * 1_000
   if (!Number.isFinite(expiry)) throw new ShopeeOAuthExchangeCommitError("invalid_exchange_expiry")
   return new Date(expiry).toISOString()
 }
