@@ -25,6 +25,16 @@ function executor(rows: readonly { id: string }[]): PostgresExecutor {
   return result
 }
 
+// The /api/ads/daily handler only calls readDaily; the other reader methods are
+// stubbed so mocks satisfy the ShopeeAdsReader interface.
+const otherAdsReads: Omit<ShopeeAdsReader, "readDaily"> = {
+  readProductCampaignIds: async () => ({ campaigns: [], hasNextPage: false }),
+  readProductCampaignSettings: async () => [],
+  readGmsDeletedItems: async () => ({ itemIds: [], hasNextPage: false }),
+  readGmsCampaignPerformance: async () => ({ report: {} }),
+  readGmsItemPerformance: async () => ({ items: [], hasNextPage: false }),
+}
+
 test("rejects unauthenticated and cross-organization Ads reads before provider access", async () => {
   let reads = 0
   const reader: ShopeeAdsReader = {
@@ -32,6 +42,7 @@ test("rejects unauthenticated and cross-organization Ads reads before provider a
       reads += 1
       return { daily: [], partial: false }
     },
+    ...otherAdsReads,
   }
   const unauthenticated = await createAdsDailyApiHandler(request(), {
     authenticate: () => null,
@@ -59,6 +70,7 @@ test("uses the previous seven Jakarta calendar dates for the selected shop", asy
         actual = input
         return { daily: [{ date: "23-09-2026", expense: 0 }], partial: false }
       },
+      ...otherAdsReads,
     },
     now: () => new Date("2026-09-24T00:30:00Z"),
   })

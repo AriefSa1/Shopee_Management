@@ -163,6 +163,66 @@ export const api = {
     )
     return body.data
   },
+
+  async adsProductCampaigns(shopId: string, adType: AdsAdType = "all"): Promise<AdsProductCampaigns> {
+    const body = await getJson<{ data: AdsProductCampaigns }>(
+      `/api/ads/product-campaigns?shopId=${encodeURIComponent(shopId)}&adType=${adType}`,
+    )
+    return body.data
+  },
+
+  async adsGms(shopId: string, days: 7 | 14 | 28): Promise<AdsGms> {
+    const body = await getJson<{ data: AdsGms }>(
+      `/api/ads/gms?shopId=${encodeURIComponent(shopId)}&days=${days}`,
+    )
+    return body.data
+  },
+}
+
+export type AdsAdType = "all" | "auto" | "manual"
+
+export type AdsProductCampaign = {
+  campaignId: number
+  adType?: string
+  adName?: string
+  campaignStatus?: string
+  biddingMethod?: string
+  campaignPlacement?: string
+  campaignBudget?: number
+  startTime?: number
+  endTime?: number
+  itemIds: number[]
+  roasTarget?: number
+}
+
+export type AdsProductCampaigns = {
+  shopId: string
+  campaigns: AdsProductCampaign[]
+  hasNextPage: boolean
+}
+
+export type GmsReport = {
+  expense?: number
+  broadGmv?: number
+  broadOrder?: number
+  broadRoi?: number
+  directOrder?: number
+  directRoi?: number
+  clicks?: number
+  impression?: number
+  cpc?: number
+  cr?: number
+}
+
+export type GmsItem = { itemId?: number; report?: GmsReport }
+
+export type AdsGms = {
+  shopId: string
+  startDate: string
+  endDate: string
+  report: GmsReport
+  items: GmsItem[]
+  deletedCount: number
 }
 
 export type AdsDailyRow = {

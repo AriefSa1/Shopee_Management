@@ -71,6 +71,109 @@ export async function createAdsDailyApiHandler(
   }
 }
 
+async function authorizeShop(
+  request: Request,
+  dependencies: AdsApiDependencies,
+): Promise<
+  | { readonly kind: "ok"; readonly shopId: ReturnType<typeof ShopIdSchema.parse> }
+  | { readonly kind: "error"; readonly response: Response }
+> {
+  const context = dependencies.authenticate(request)
+  if (context === null) {
+    return { kind: "error", response: json({ error: { code: "authentication_required" } }, 401) }
+  }
+  const shopId = ShopIdSchema.safeParse(new URL(request.url).searchParams.get("shopId"))
+  if (!shopId.success) {
+    return { kind: "error", response: json({ error: { code: "invalid_ads_request" } }, 400) }
+  }
+  const rows = await dependencies.executor.query({
+    name: "web.ads.authorize_shop",
+    text: "SELECT id FROM shop_connections WHERE id = $1 AND organization_id = $2 AND status = 'active'",
+    params: [shopId.data, context.organizationId],
+  })
+  if (rows.length === 0) {
+    return { kind: "error", response: json({ error: { code: "shop_not_accessible" } }, 403) }
+  }
+  return { kind: "ok", shopId: shopId.data }
+}
+
+function adsFailure(error: unknown): Response {
+  if (error instanceof ShopeeAdsProviderError || error instanceof ShopeeCatalogProviderError) {
+    return json({ error: { code: "ads_provider_unavailable", providerCode: error.code } }, 502)
+  }
+  if (error instanceof Error) return json({ error: { code: "ads_provider_unavailable" } }, 502)
+  throw error
+}
+
+export async function createAdsProductCampaignsApiHandler(
+  request: Request,
+  dependencies: AdsApiDependencies,
+): Promise<Response> {
+  const auth = await authorizeShop(request, dependencies)
+  if (auth.kind === "error") return auth.response
+  const adTypeRaw = new URL(request.url).searchParams.get("adType") ?? "all"
+  const adType = ["all", "auto", "manual"].includes(adTypeRaw) ? adTypeRaw : "all"
+  try {
+    const ids = await dependencies.reader.readProductCampaignIds({ shopId: auth.shopId, adType })
+    const campaigns = await dependencies.reader.readProductCampaignSettings({
+      shopId: auth.shopId,
+      campaignIds: ids.campaigns.map((campaign) => campaign.campaignId),
+    })
+    return json({ data: { shopId: auth.shopId, campaigns, hasNextPage: ids.hasNextPage } }, 200)
+  } catch (error) {
+    return adsFailure(error)
+  }
+}
+
+export async function createAdsGmsApiHandler(
+  request: Request,
+  dependencies: AdsApiDependencies,
+): Promise<Response> {
+  const auth = await authorizeShop(request, dependencies)
+  if (auth.kind === "error") return auth.response
+  const days = Number(new URL(request.url).searchParams.get("days") ?? "7")
+  if (![7, 14, 28].includes(days)) return json({ error: { code: "invalid_ads_request" } }, 400)
+  const today = dateInJakarta((dependencies.now ?? (() => new Date()))())
+  const startDate = shopeeDate(new Date(today.getTime() - days * 86_400_000))
+  const endDate = shopeeDate(new Date(today.getTime() - 86_400_000))
+  try {
+    const [campaign, items] = await Promise.all([
+      dependencies.reader.readGmsCampaignPerformance({ shopId: auth.shopId, startDate, endDate }),
+      dependencies.reader.readGmsItemPerformance({
+        shopId: auth.shopId,
+        startDate,
+        endDate,
+        limit: 20,
+      }),
+    ])
+    let deletedCount = 0
+    try {
+      const deleted = await dependencies.reader.readGmsDeletedItems({
+        shopId: auth.shopId,
+        limit: 100,
+      })
+      deletedCount = deleted.total ?? deleted.itemIds.length
+    } catch {
+      // best-effort: the deleted-item count is supplementary to GMS performance.
+    }
+    return json(
+      {
+        data: {
+          shopId: auth.shopId,
+          startDate,
+          endDate,
+          report: campaign.report,
+          items: items.items,
+          deletedCount,
+        },
+      },
+      200,
+    )
+  } catch (error) {
+    return adsFailure(error)
+  }
+}
+
 function json(body: object, status: 200 | 400 | 401 | 403 | 502): Response {
   return Response.json(body, { status, headers: { "cache-control": "no-store" } })
 }

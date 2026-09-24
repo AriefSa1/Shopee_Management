@@ -1,8 +1,10 @@
 import { AppShell, Center, Grid, Loader, Stack } from "@mantine/core"
 import { useCallback, useEffect, useState } from "react"
 import { api, ApiError, type Connection, type Product, type Store } from "./api.ts"
-import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
+import { AdsGms } from "./components/AdsGms.tsx"
+import { AdsProductCampaigns } from "./components/AdsProductCampaigns.tsx"
 import { AdsWorkspace } from "./components/AdsWorkspace.tsx"
+import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
 import { Login } from "./components/Login.tsx"
 import { ProductCatalog } from "./components/ProductCatalog.tsx"
 import { ProductStatusDonut } from "./components/ProductStatusDonut.tsx"
@@ -148,14 +150,30 @@ export function App() {
             </Grid>
           </Stack>
         ) : view === "ads" ? (
-          <AdsWorkspace
-            stores={stores}
-            connections={connections}
-            activeShopId={activeShopId}
-            onShopChange={setActiveShopId}
-            onConnect={onConnect}
-            refreshTick={refreshTick}
-          />
+          <Stack gap="lg">
+            <AdsWorkspace
+              stores={stores}
+              connections={connections}
+              activeShopId={activeShopId}
+              onShopChange={setActiveShopId}
+              onConnect={onConnect}
+              refreshTick={refreshTick}
+            />
+            <AdsProductCampaigns
+              shopId={activeShopId}
+              connectionReady={
+                connections.find((item) => item.shopId === activeShopId)?.state === "ready"
+              }
+              refreshTick={refreshTick}
+            />
+            <AdsGms
+              shopId={activeShopId}
+              connectionReady={
+                connections.find((item) => item.shopId === activeShopId)?.state === "ready"
+              }
+              refreshTick={refreshTick}
+            />
+          </Stack>
         ) : (
           <ProductCatalog
             stores={stores}

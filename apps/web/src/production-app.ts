@@ -5,7 +5,11 @@ import type { ShopeeAdsReader } from "../../../packages/integrations/src/shopee-
 import type { ShopeeMarketingInsightsReader } from "../../../packages/integrations/src/shopee-business-insights.ts"
 import type { ShopeeProductDetailReader } from "../../../packages/integrations/src/shopee-product-detail.ts"
 import type { OAuthWebApiDependencies } from "../../../packages/oauth/src/oauth-api.ts"
-import { createAdsDailyApiHandler } from "./ads-api.ts"
+import {
+  createAdsDailyApiHandler,
+  createAdsGmsApiHandler,
+  createAdsProductCampaignsApiHandler,
+} from "./ads-api.ts"
 import { createWebApp } from "./app.ts"
 import { createConnectionStatusApiHandler } from "./connection-status-api.ts"
 import type { InternalSessionService } from "./internal-session.ts"
@@ -124,13 +128,18 @@ export function createProductionWebApp(dependencies: ProductionWebAppDependencie
   }
   const adsReader = dependencies.adsReader
   if (adsReader !== undefined) {
+    const adsDependencies = {
+      authenticate: dependencies.session.authenticate,
+      executor,
+      reader: adsReader,
+    }
     app.get("/api/ads/daily", (context) =>
-      createAdsDailyApiHandler(context.req.raw, {
-        authenticate: dependencies.session.authenticate,
-        executor,
-        reader: adsReader,
-      }),
+      createAdsDailyApiHandler(context.req.raw, adsDependencies),
     )
+    app.get("/api/ads/product-campaigns", (context) =>
+      createAdsProductCampaignsApiHandler(context.req.raw, adsDependencies),
+    )
+    app.get("/api/ads/gms", (context) => createAdsGmsApiHandler(context.req.raw, adsDependencies))
   }
   return app
 }
