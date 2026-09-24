@@ -30,5 +30,10 @@
   "include": [
     "apps/**/*.ts",
     "packages/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "apps/dashboard",
+    "apps/web/public"
   ]
 }

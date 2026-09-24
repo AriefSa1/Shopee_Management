@@ -29,6 +29,7 @@ import {
 } from "../../../packages/write-recovery/src/recovery-api.ts"
 import { createWriteRecoveryUiHandler } from "../../../packages/write-recovery/src/recovery-ui.ts"
 import { createDashboardUiHandler } from "./dashboard-ui.ts"
+import { mountDashboardSpa } from "./spa.ts"
 import { createStoresApiHandler, type StoreApiDependencies } from "./stores-api.ts"
 
 export function createWebApp(
@@ -40,6 +41,7 @@ export function createWebApp(
   stagingMeasurement?: StagingMeasurementApiDependencies,
   copyPreview?: CopyPreviewApiDependencies,
   stores?: StoreApiDependencies,
+  spaPublicDir?: string,
 ): Hono {
   const app = new Hono()
 
@@ -55,7 +57,11 @@ export function createWebApp(
     } satisfies ReadinessResponse
     return context.json(readiness, readiness.status === "ready" ? 200 : 503)
   })
-  app.get("/", async () => createDashboardUiHandler(database, oauth !== undefined))
+  if (spaPublicDir !== undefined) {
+    mountDashboardSpa(app, spaPublicDir)
+  } else {
+    app.get("/", async () => createDashboardUiHandler(database, oauth !== undefined))
+  }
   if (catalog !== undefined) {
     app.get("/api/catalog", (context) => createCatalogApiHandler(context.req.raw, catalog))
   }

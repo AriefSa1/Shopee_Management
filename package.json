@@ -17,8 +17,11 @@
     "worker:encryption-preflight": "node --env-file-if-exists=.env --experimental-strip-types apps/worker/src/credential-encryption-preflight-main.ts",
     "test": "node --experimental-strip-types --test apps/web/src/app.test.ts apps/worker/src/app.test.ts packages/config/src/runtime-config.test.ts",
     "typecheck": "tsc --noEmit",
+    "typecheck:ui": "tsc --noEmit -p apps/dashboard/tsconfig.json",
     "lint": "biome check .",
-    "build": "tsc --noEmit"
+    "ui:dev": "vite",
+    "build:ui": "vite build",
+    "build": "tsc --noEmit && vite build"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.9",
@@ -28,8 +31,21 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^2.2.4",
+    "@mantine/charts": "^9.6.2",
+    "@mantine/core": "^9.6.2",
+    "@mantine/hooks": "^9.6.2",
+    "@tabler/icons-react": "^3.48.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.3.1",
     "@types/pg": "^8.23.1",
-    "typescript": "^5.9.2"
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "recharts": "^3.10.1",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.9.2",
+    "vite": "^8.3.0"
   }
 }

@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs"
+import { fileURLToPath } from "node:url"
 import { serve } from "@hono/node-server"
 import { Pool } from "pg"
 import {
@@ -40,15 +42,31 @@ export function createFailClosedStagingDependencies(): StagingApiDependencies {
   }
 }
 
+function resolveSpaPublicDir(): string | undefined {
+  const dir = fileURLToPath(new URL("../public", import.meta.url))
+  return existsSync(`${dir}/index.html`) ? dir : undefined
+}
+
 function start(): void {
   const config = parseWebConfig(process.env)
   const database = createConfiguredDatabaseReadinessProbe(config.databaseUrl)
+  const spaPublicDir = resolveSpaPublicDir()
   const liveOAuthFlag = process.env["SHOPEE_LIVE_OAUTH_ENABLED"] ?? "false"
   if (liveOAuthFlag !== "true" && liveOAuthFlag !== "false") {
     throw new ConfigValidationError(["SHOPEE_LIVE_OAUTH_ENABLED"])
   }
   const liveOAuthEnabled = liveOAuthFlag === "true"
-  let app = createWebApp(database, undefined, undefined, createFailClosedStagingDependencies())
+  let app = createWebApp(
+    database,
+    undefined,
+    undefined,
+    createFailClosedStagingDependencies(),
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    spaPublicDir,
+  )
   if (liveOAuthEnabled) {
     if (config.databaseUrl === undefined) throw new ConfigValidationError(["DATABASE_URL"])
     const sessionConfig = parseInternalSessionConfig(process.env)
@@ -63,6 +81,7 @@ function start(): void {
     const executor = createPostgresExecutor(asPostgresPool(pool))
     app = createProductionWebApp({
       database,
+      ...(spaPublicDir === undefined ? {} : { spaPublicDir }),
       session,
       connection: {
         organizationId: sessionConfig.organizationId,

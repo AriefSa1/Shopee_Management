@@ -1,0 +1,42 @@
+/*
+ * Tailwind v4 without Preflight — Preflight's global reset would fight Mantine's
+ * own baseline styles, so only the theme and utility layers are imported. Mantine
+ * component styles stay authoritative; Tailwind is used for layout utilities only.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap");
+
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+:root {
+  --app-bg: #f5f8fb;
+}
+
+body {
+  margin: 0;
+  background: var(--app-bg);
+}
+
+/* Tabular numerals for money and counts. */
+.num {
+  font-family: "Space Grotesk", "Plus Jakarta Sans", sans-serif;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+
+/* Sidebar navigation items. */
+.navitem {
+  display: block;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 11px;
+  color: #475569;
+}
+.navitem:hover {
+  background: #f1f5f9;
+}
+.navitem[data-active] {
+  background: #ecfeff;
+  color: #0e7490;
+}

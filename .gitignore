@@ -10,6 +10,8 @@ dist/
 build/
 .next/
 .turbo/
+# Vite build output for the dashboard SPA (generated at build/deploy time).
+apps/web/public/
 
 # Claude Code managed worktrees
 .claude/

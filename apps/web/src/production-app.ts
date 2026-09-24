@@ -21,11 +21,22 @@ export type ProductionWebAppDependencies = {
   readonly executor?: PostgresExecutor
   readonly catalog?: CatalogApiDependencies
   readonly productDetailReader?: ShopeeProductDetailReader
+  readonly spaPublicDir?: string
 }
 
 export function createProductionWebApp(dependencies: ProductionWebAppDependencies) {
   if (dependencies.executor === undefined || dependencies.catalog === undefined) {
-    const app = createWebApp(dependencies.database, undefined, dependencies.oauth)
+    const app = createWebApp(
+      dependencies.database,
+      undefined,
+      dependencies.oauth,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      dependencies.spaPublicDir,
+    )
     app.post("/api/session/login", (context) => dependencies.session.login(context.req.raw))
     app.post("/api/session/logout", () => dependencies.session.logout())
     app.get("/api/session/status", (context) =>
@@ -68,6 +79,7 @@ export function createProductionWebApp(dependencies: ProductionWebAppDependencie
     undefined,
     undefined,
     stores,
+    dependencies.spaPublicDir,
   )
   app.post("/api/session/login", (context) => dependencies.session.login(context.req.raw))
   app.post("/api/session/logout", () => dependencies.session.logout())
