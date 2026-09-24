@@ -171,9 +171,9 @@ export const api = {
     return body.data
   },
 
-  async adsGms(shopId: string, days: 7 | 14 | 28): Promise<AdsGms> {
-    const body = await getJson<{ data: AdsGms }>(
-      `/api/ads/gms?shopId=${encodeURIComponent(shopId)}&days=${days}`,
+  async adsRaw(shopId: string, startDate: string, endDate: string): Promise<AdsRaw> {
+    const body = await getJson<{ data: AdsRaw }>(
+      `/api/ads/raw?shopId=${encodeURIComponent(shopId)}&startDate=${encodeURIComponent(startDate)}&endDate=${encodeURIComponent(endDate)}`,
     )
     return body.data
   },
@@ -216,17 +216,20 @@ export type GmsReport = {
 
 export type GmsItem = { itemId?: number; report?: GmsReport }
 
-export type AdsGmsRaw = {
-  campaignPerformance: unknown
-  itemPerformance: unknown
-  deletedItems: unknown
+export type AdsRawResponses = {
+  dailyPerformance: unknown
+  productCampaignIdList: unknown
+  productCampaignSettingInfo: unknown
+  gmsCampaignPerformance: unknown
+  gmsItemPerformance: unknown
+  gmsDeletedItem: unknown
 }
 
-export type AdsGms = {
+export type AdsRaw = {
   shopId: string
   startDate: string
   endDate: string
-  raw: AdsGmsRaw
+  raw: AdsRawResponses
 }
 
 export type AdsDailyRow = {

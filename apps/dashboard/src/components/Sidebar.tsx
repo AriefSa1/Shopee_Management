@@ -1,9 +1,10 @@
 import { Badge, Box, Group, Stack, Text, ThemeIcon, UnstyledButton } from "@mantine/core"
 import {
-  IconBox,
   IconAd,
+  IconBox,
   IconBuildingStore,
   IconChartBar,
+  IconCode,
   IconLayoutGrid,
   IconLogout,
   IconPlus,
@@ -13,12 +14,13 @@ import {
 } from "@tabler/icons-react"
 import { type Connection, connectionStateMetaOf, type Store, storeLabel } from "../api.ts"
 
-export type DashboardView = "dashboard" | "produk" | "ads"
+export type DashboardView = "dashboard" | "produk" | "ads" | "inspektur"
 
 const items: { icon: typeof IconLayoutGrid; label: string; view?: DashboardView }[] = [
   { icon: IconLayoutGrid, label: "Dashboard", view: "dashboard" },
   { icon: IconBox, label: "Produk", view: "produk" },
   { icon: IconAd, label: "Ads", view: "ads" },
+  { icon: IconCode, label: "Data Mentah", view: "inspektur" },
   { icon: IconShoppingCart, label: "Pesanan" },
   { icon: IconStack2, label: "Stok Gudang" },
   { icon: IconReportAnalytics, label: "Listing" },

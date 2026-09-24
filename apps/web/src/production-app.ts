@@ -7,8 +7,8 @@ import type { ShopeeProductDetailReader } from "../../../packages/integrations/s
 import type { OAuthWebApiDependencies } from "../../../packages/oauth/src/oauth-api.ts"
 import {
   createAdsDailyApiHandler,
-  createAdsGmsApiHandler,
   createAdsProductCampaignsApiHandler,
+  createAdsRawApiHandler,
 } from "./ads-api.ts"
 import { createWebApp } from "./app.ts"
 import { createConnectionStatusApiHandler } from "./connection-status-api.ts"
@@ -139,7 +139,7 @@ export function createProductionWebApp(dependencies: ProductionWebAppDependencie
     app.get("/api/ads/product-campaigns", (context) =>
       createAdsProductCampaignsApiHandler(context.req.raw, adsDependencies),
     )
-    app.get("/api/ads/gms", (context) => createAdsGmsApiHandler(context.req.raw, adsDependencies))
+    app.get("/api/ads/raw", (context) => createAdsRawApiHandler(context.req.raw, adsDependencies))
   }
   return app
 }

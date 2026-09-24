@@ -1,8 +1,8 @@
 import { AppShell, Center, Grid, Loader, Stack } from "@mantine/core"
 import { useCallback, useEffect, useState } from "react"
 import { api, ApiError, type Connection, type Product, type Store } from "./api.ts"
-import { AdsGms } from "./components/AdsGms.tsx"
 import { AdsProductCampaigns } from "./components/AdsProductCampaigns.tsx"
+import { AdsRawInspector } from "./components/AdsRawInspector.tsx"
 import { AdsWorkspace } from "./components/AdsWorkspace.tsx"
 import { ConnectionStatus } from "./components/ConnectionStatus.tsx"
 import { Login } from "./components/Login.tsx"
@@ -166,14 +166,17 @@ export function App() {
               }
               refreshTick={refreshTick}
             />
-            <AdsGms
-              shopId={activeShopId}
-              connectionReady={
-                connections.find((item) => item.shopId === activeShopId)?.state === "ready"
-              }
-              refreshTick={refreshTick}
-            />
           </Stack>
+        ) : view === "inspektur" ? (
+          <AdsRawInspector
+            stores={stores}
+            activeShopId={activeShopId}
+            onShopChange={setActiveShopId}
+            connectionReady={
+              connections.find((item) => item.shopId === activeShopId)?.state === "ready"
+            }
+            refreshTick={refreshTick}
+          />
         ) : (
           <ProductCatalog
             stores={stores}

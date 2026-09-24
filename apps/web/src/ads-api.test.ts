@@ -33,7 +33,14 @@ const otherAdsReads: Omit<ShopeeAdsReader, "readDaily"> = {
   readGmsDeletedItems: async () => ({ itemIds: [], hasNextPage: false }),
   readGmsCampaignPerformance: async () => ({ report: {} }),
   readGmsItemPerformance: async () => ({ items: [], hasNextPage: false }),
-  readGmsRaw: async () => ({ campaignPerformance: {}, itemPerformance: {}, deletedItems: {} }),
+  readAdsRaw: async () => ({
+    dailyPerformance: {},
+    productCampaignIdList: {},
+    productCampaignSettingInfo: {},
+    gmsCampaignPerformance: {},
+    gmsItemPerformance: {},
+    gmsDeletedItem: {},
+  }),
 }
 
 test("rejects unauthenticated and cross-organization Ads reads before provider access", async () => {

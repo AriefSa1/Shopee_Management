@@ -125,19 +125,23 @@ export async function createAdsProductCampaignsApiHandler(
   }
 }
 
-export async function createAdsGmsApiHandler(
+const SHOPEE_DATE_RE = /^\d{2}-\d{2}-\d{4}$/
+
+export async function createAdsRawApiHandler(
   request: Request,
   dependencies: AdsApiDependencies,
 ): Promise<Response> {
   const auth = await authorizeShop(request, dependencies)
   if (auth.kind === "error") return auth.response
-  const days = Number(new URL(request.url).searchParams.get("days") ?? "7")
-  if (![7, 14, 28].includes(days)) return json({ error: { code: "invalid_ads_request" } }, 400)
+  const query = new URL(request.url).searchParams
   const today = dateInJakarta((dependencies.now ?? (() => new Date()))())
-  const startDate = shopeeDate(new Date(today.getTime() - days * 86_400_000))
-  const endDate = shopeeDate(new Date(today.getTime() - 86_400_000))
+  const startDate = query.get("startDate") ?? shopeeDate(new Date(today.getTime() - 7 * 86_400_000))
+  const endDate = query.get("endDate") ?? shopeeDate(new Date(today.getTime() - 86_400_000))
+  if (!SHOPEE_DATE_RE.test(startDate) || !SHOPEE_DATE_RE.test(endDate)) {
+    return json({ error: { code: "invalid_ads_request" } }, 400)
+  }
   try {
-    const raw = await dependencies.reader.readGmsRaw({ shopId: auth.shopId, startDate, endDate })
+    const raw = await dependencies.reader.readAdsRaw({ shopId: auth.shopId, startDate, endDate })
     return json({ data: { shopId: auth.shopId, startDate, endDate, raw } }, 200)
   } catch (error) {
     return adsFailure(error)

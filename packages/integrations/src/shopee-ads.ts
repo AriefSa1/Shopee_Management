@@ -141,20 +141,23 @@ export type ShopeeAdsReader = {
     total?: number
     hasNextPage: boolean
   }>
-  readGmsRaw: (request: {
+  readAdsRaw: (request: {
     readonly shopId: string
     readonly startDate: string
     readonly endDate: string
-  }) => Promise<GmsRaw>
+  }) => Promise<AdsRaw>
 }
 
-// Untouched provider bodies for the three GMS endpoints, for a raw inspection
-// view. Each section is captured independently so one failing call still shows
-// the others.
-export type GmsRaw = {
-  campaignPerformance: unknown
-  itemPerformance: unknown
-  deletedItems: unknown
+// Untouched provider bodies for the implemented Ads read endpoints, for a raw
+// inspection view. Each section is captured independently so one failing call
+// still shows the others.
+export type AdsRaw = {
+  dailyPerformance: unknown
+  productCampaignIdList: unknown
+  productCampaignSettingInfo: unknown
+  gmsCampaignPerformance: unknown
+  gmsItemPerformance: unknown
+  gmsDeletedItem: unknown
 }
 
 type CallContext = {
@@ -480,9 +483,21 @@ export function createShopeeAdsReader(input: {
       }
     },
 
-    async readGmsRaw(request) {
+    async readAdsRaw(request) {
       const ctx = await context(request.shopId)
-      const [campaignPerformance, itemPerformance, deletedItems] = await Promise.all([
+      const [
+        dailyPerformance,
+        productCampaignIdList,
+        gmsCampaignPerformance,
+        gmsItemPerformance,
+        gmsDeletedItem,
+      ] = await Promise.all([
+        rawSection(ctx, "GET", DAILY_PERFORMANCE_PATH, {
+          query: { start_date: request.startDate, end_date: request.endDate },
+        }),
+        rawSection(ctx, "GET", PRODUCT_CAMPAIGN_ID_LIST_PATH, {
+          query: { ad_type: "all", offset: "0", limit: "5000" },
+        }),
         rawSection(ctx, "POST", GMS_CAMPAIGN_PERFORMANCE_PATH, {
           body: { start_date: request.startDate, end_date: request.endDate },
         }),
@@ -491,7 +506,26 @@ export function createShopeeAdsReader(input: {
         }),
         rawSection(ctx, "POST", GMS_DELETED_ITEM_PATH, { body: { offset: 0, limit: 100 } }),
       ])
-      return { campaignPerformance, itemPerformance, deletedItems }
+      const parsedIds = ProductCampaignIdSchema.safeParse(productCampaignIdList)
+      const campaignIds = parsedIds.success
+        ? (parsedIds.data.response?.campaign_list ?? [])
+            .map((entry) => entry.campaign_id)
+            .slice(0, 100)
+        : []
+      const productCampaignSettingInfo =
+        campaignIds.length > 0
+          ? await rawSection(ctx, "GET", PRODUCT_CAMPAIGN_SETTING_PATH, {
+              query: { info_type_list: "1,2,3,4", campaign_id_list: campaignIds.join(",") },
+            })
+          : { note: "no_campaigns" }
+      return {
+        dailyPerformance,
+        productCampaignIdList,
+        productCampaignSettingInfo,
+        gmsCampaignPerformance,
+        gmsItemPerformance,
+        gmsDeletedItem,
+      }
     },
   }
 }

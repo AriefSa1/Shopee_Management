@@ -28,14 +28,22 @@ export function TopBar({
       />
       <div style={{ flexShrink: 0 }}>
         <Text fw={800} fz={19} lh={1.15}>
-          {view === "ads" ? "Ads Shopee" : view === "produk" ? "Produk" : "Dashboard"}
+          {view === "ads"
+            ? "Ads Shopee"
+            : view === "produk"
+              ? "Produk"
+              : view === "inspektur"
+                ? "Data Mentah API"
+                : "Dashboard"}
         </Text>
         <Text fz={12.5} fw={600} c="dimmed" visibleFrom="sm">
           {view === "ads"
             ? "Performa harian dan cakupan API iklan per toko"
             : view === "produk"
               ? "Katalog produk toko yang terhubung"
-              : "Ringkasan toko & katalog yang terhubung"}
+              : view === "inspektur"
+                ? "Respons mentah API Ads untuk menentukan tampilan"
+                : "Ringkasan toko & katalog yang terhubung"}
         </Text>
       </div>
 
