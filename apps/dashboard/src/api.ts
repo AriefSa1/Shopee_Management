@@ -216,13 +216,17 @@ export type GmsReport = {
 
 export type GmsItem = { itemId?: number; report?: GmsReport }
 
+export type AdsGmsRaw = {
+  campaignPerformance: unknown
+  itemPerformance: unknown
+  deletedItems: unknown
+}
+
 export type AdsGms = {
   shopId: string
   startDate: string
   endDate: string
-  report: GmsReport
-  items: GmsItem[]
-  deletedCount: number
+  raw: AdsGmsRaw
 }
 
 export type AdsDailyRow = {

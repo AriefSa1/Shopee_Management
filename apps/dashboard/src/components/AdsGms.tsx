@@ -1,45 +1,37 @@
 import {
+  Accordion,
   Alert,
-  Badge,
   Card,
   Center,
   Group,
   Loader,
+  ScrollArea,
   SegmentedControl,
-  SimpleGrid,
-  Stack,
-  Table,
   Text,
 } from "@mantine/core"
 import { IconInfoCircle } from "@tabler/icons-react"
 import { useEffect, useState } from "react"
-import { type AdsGms as AdsGmsData, api, ApiError, type GmsReport } from "../api.ts"
+import { type AdsGms as AdsGmsData, api, ApiError } from "../api.ts"
 
-const rupiah = new Intl.NumberFormat("id-ID", {
-  style: "currency",
-  currency: "IDR",
-  maximumFractionDigits: 0,
-})
-const integer = new Intl.NumberFormat("id-ID")
+const sections: { key: keyof AdsGmsData["raw"]; api: string }[] = [
+  { key: "campaignPerformance", api: "get_gms_campaign_performance" },
+  { key: "itemPerformance", api: "get_gms_item_performance" },
+  { key: "deletedItems", api: "list_gms_user_deleted_item" },
+]
 
-function money(value: number | undefined): string {
-  return value === undefined ? "—" : rupiah.format(value)
-}
-function count(value: number | undefined): string {
-  return value === undefined ? "—" : integer.format(value)
-}
-function ratio(value: number | undefined): string {
-  return value === undefined ? "—" : `${value.toFixed(2).replace(".", ",")}×`
-}
-
-function tiles(report: GmsReport): { label: string; value: string }[] {
-  return [
-    { label: "Biaya iklan", value: money(report.expense) },
-    { label: "GMV (broad)", value: money(report.broadGmv) },
-    { label: "ROAS (broad)", value: ratio(report.broadRoi) },
-    { label: "Pesanan (broad)", value: count(report.broadOrder) },
-    { label: "Klik", value: count(report.clicks) },
-  ]
+function RawBlock({ value }: { value: unknown }) {
+  return (
+    <ScrollArea.Autosize mah={340} type="auto">
+      <Text
+        component="pre"
+        className="num"
+        fz={12}
+        style={{ margin: 0, whiteSpace: "pre", lineHeight: 1.5 }}
+      >
+        {JSON.stringify(value ?? null, null, 2)}
+      </Text>
+    </ScrollArea.Autosize>
+  )
 }
 
 export function AdsGms({
@@ -84,40 +76,30 @@ export function AdsGms({
     }
   }, [shopId, connectionReady, days, refreshTick])
 
-  const topItems = (data?.items ?? [])
-    .slice()
-    .sort((a, b) => (b.report?.broadGmv ?? 0) - (a.report?.broadGmv ?? 0))
-    .slice(0, 10)
-
   return (
     <Card radius="lg" padding="lg" withBorder>
       <Group justify="space-between" align="flex-start" wrap="wrap" mb="md">
         <div>
           <Text fw={800} fz="lg">
-            GMV Max (GMS)
+            GMV Max (GMS) — data mentah
           </Text>
           <Text fz="sm" c="dimmed">
-            Dari get_gms_campaign_performance, get_gms_item_performance &amp; list_gms_user_deleted_item.
+            Respons API apa adanya dari get_gms_campaign_performance, get_gms_item_performance &amp;
+            list_gms_user_deleted_item.
+            {data ? ` Rentang: ${data.startDate} – ${data.endDate}.` : ""}
           </Text>
         </div>
-        <Group gap="sm" wrap="nowrap">
-          {data ? (
-            <Badge variant="light" color="gray">
-              {data.deletedCount} item dihapus
-            </Badge>
-          ) : null}
-          <SegmentedControl
-            aria-label="Periode GMV Max"
-            size="xs"
-            data={[
-              { label: "7 hari", value: "7" },
-              { label: "14 hari", value: "14" },
-              { label: "28 hari", value: "28" },
-            ]}
-            value={String(days)}
-            onChange={(value) => setDays(Number(value) as 7 | 14 | 28)}
-          />
-        </Group>
+        <SegmentedControl
+          aria-label="Periode GMV Max"
+          size="xs"
+          data={[
+            { label: "7 hari", value: "7" },
+            { label: "14 hari", value: "14" },
+            { label: "28 hari", value: "28" },
+          ]}
+          value={String(days)}
+          onChange={(value) => setDays(Number(value) as 7 | 14 | 28)}
+        />
       </Group>
 
       {shopId === null || !connectionReady ? (
@@ -133,56 +115,20 @@ export function AdsGms({
           Data GMV Max belum tersedia ({error}). Fitur ini butuh kampanye GMS aktif dan izin Ads.
         </Alert>
       ) : data ? (
-        <Stack gap="lg">
-          <SimpleGrid cols={{ base: 2, md: 5 }} spacing="md">
-            {tiles(data.report).map((tile) => (
-              <Card key={tile.label} padding="md" radius="md" withBorder bg="gray.0">
-                <Text fz="xs" fw={700} c="dimmed">
-                  {tile.label}
+        <Accordion multiple defaultValue={sections.map((section) => section.api)} variant="separated">
+          {sections.map((section) => (
+            <Accordion.Item key={section.api} value={section.api}>
+              <Accordion.Control>
+                <Text className="num" fz={13.5} fw={700}>
+                  {section.api}
                 </Text>
-                <Text className="num" fz="lg" fw={800} mt={4}>
-                  {tile.value}
-                </Text>
-              </Card>
-            ))}
-          </SimpleGrid>
-
-          {topItems.length > 0 ? (
-            <div>
-              <Text fw={700} fz="sm" mb="xs">
-                Produk GMS Teratas
-              </Text>
-              <Table.ScrollContainer minWidth={560}>
-                <Table highlightOnHover verticalSpacing="xs" fz="sm">
-                  <Table.Thead>
-                    <Table.Tr>
-                      <Table.Th>Item ID</Table.Th>
-                      <Table.Th>GMV</Table.Th>
-                      <Table.Th>Pesanan</Table.Th>
-                      <Table.Th>Biaya</Table.Th>
-                      <Table.Th>ROAS</Table.Th>
-                    </Table.Tr>
-                  </Table.Thead>
-                  <Table.Tbody>
-                    {topItems.map((item, index) => (
-                      <Table.Tr key={item.itemId ?? index}>
-                        <Table.Td className="num">{item.itemId ?? "—"}</Table.Td>
-                        <Table.Td className="num">{money(item.report?.broadGmv)}</Table.Td>
-                        <Table.Td className="num">{count(item.report?.broadOrder)}</Table.Td>
-                        <Table.Td className="num">{money(item.report?.expense)}</Table.Td>
-                        <Table.Td className="num">{ratio(item.report?.broadRoi)}</Table.Td>
-                      </Table.Tr>
-                    ))}
-                  </Table.Tbody>
-                </Table>
-              </Table.ScrollContainer>
-            </div>
-          ) : (
-            <Text c="dimmed" fz="sm" ta="center" py="sm">
-              Belum ada performa item GMS untuk periode ini.
-            </Text>
-          )}
-        </Stack>
+              </Accordion.Control>
+              <Accordion.Panel>
+                <RawBlock value={data.raw[section.key]} />
+              </Accordion.Panel>
+            </Accordion.Item>
+          ))}
+        </Accordion>
       ) : null}
     </Card>
   )

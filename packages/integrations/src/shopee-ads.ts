@@ -141,6 +141,20 @@ export type ShopeeAdsReader = {
     total?: number
     hasNextPage: boolean
   }>
+  readGmsRaw: (request: {
+    readonly shopId: string
+    readonly startDate: string
+    readonly endDate: string
+  }) => Promise<GmsRaw>
+}
+
+// Untouched provider bodies for the three GMS endpoints, for a raw inspection
+// view. Each section is captured independently so one failing call still shows
+// the others.
+export type GmsRaw = {
+  campaignPerformance: unknown
+  itemPerformance: unknown
+  deletedItems: unknown
 }
 
 type CallContext = {
@@ -465,5 +479,34 @@ export function createShopeeAdsReader(input: {
         ...(parsed.data.response?.total === undefined ? {} : { total: parsed.data.response.total }),
       }
     },
+
+    async readGmsRaw(request) {
+      const ctx = await context(request.shopId)
+      const [campaignPerformance, itemPerformance, deletedItems] = await Promise.all([
+        rawSection(ctx, "POST", GMS_CAMPAIGN_PERFORMANCE_PATH, {
+          body: { start_date: request.startDate, end_date: request.endDate },
+        }),
+        rawSection(ctx, "POST", GMS_ITEM_PERFORMANCE_PATH, {
+          body: { start_date: request.startDate, end_date: request.endDate, offset: 0, limit: 50 },
+        }),
+        rawSection(ctx, "POST", GMS_DELETED_ITEM_PATH, { body: { offset: 0, limit: 100 } }),
+      ])
+      return { campaignPerformance, itemPerformance, deletedItems }
+    },
+  }
+}
+
+// Return an untouched provider body, or an error marker when the call fails, so
+// a raw-inspection view can show whatever each GMS endpoint returned.
+async function rawSection(
+  context: CallContext,
+  method: "GET" | "POST",
+  path: string,
+  options: { query?: Record<string, string>; body?: Record<string, unknown> },
+): Promise<unknown> {
+  try {
+    return await callAds(context, method, path, options)
+  } catch (error) {
+    return { error: error instanceof ShopeeAdsProviderError ? error.code : "section_failed", path }
   }
 }

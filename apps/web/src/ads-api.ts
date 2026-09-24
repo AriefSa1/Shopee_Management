@@ -137,38 +137,8 @@ export async function createAdsGmsApiHandler(
   const startDate = shopeeDate(new Date(today.getTime() - days * 86_400_000))
   const endDate = shopeeDate(new Date(today.getTime() - 86_400_000))
   try {
-    const [campaign, items] = await Promise.all([
-      dependencies.reader.readGmsCampaignPerformance({ shopId: auth.shopId, startDate, endDate }),
-      dependencies.reader.readGmsItemPerformance({
-        shopId: auth.shopId,
-        startDate,
-        endDate,
-        limit: 20,
-      }),
-    ])
-    let deletedCount = 0
-    try {
-      const deleted = await dependencies.reader.readGmsDeletedItems({
-        shopId: auth.shopId,
-        limit: 100,
-      })
-      deletedCount = deleted.total ?? deleted.itemIds.length
-    } catch {
-      // best-effort: the deleted-item count is supplementary to GMS performance.
-    }
-    return json(
-      {
-        data: {
-          shopId: auth.shopId,
-          startDate,
-          endDate,
-          report: campaign.report,
-          items: items.items,
-          deletedCount,
-        },
-      },
-      200,
-    )
+    const raw = await dependencies.reader.readGmsRaw({ shopId: auth.shopId, startDate, endDate })
+    return json({ data: { shopId: auth.shopId, startDate, endDate, raw } }, 200)
   } catch (error) {
     return adsFailure(error)
   }
