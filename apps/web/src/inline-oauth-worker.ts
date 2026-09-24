@@ -42,6 +42,10 @@ import { parseWorkerOnceConfig, runWorkerOnce } from "../../worker/src/once.ts"
 
 const DEFAULT_INTERVAL_MS = 30_000
 const REFRESH_PATH = "/api/v2/auth/access_token/get"
+// Reuse a resolved Shopee access token for this long before refreshing again.
+// Shopee access tokens live far longer (hours); a conservative window keeps the
+// first page load's parallel requests from each rotating the credential.
+const INLINE_ACCESS_TTL_MS = 30 * 60 * 1000
 
 type InlineWorkerHandle = { readonly stop: () => Promise<void> }
 
@@ -126,7 +130,10 @@ export function createInlineCatalogAccessResolver(input: {
     backend: createEnvironmentAesGcmEnvelopeBackend(encryption),
   })
   const credentials = new PostgresCredentialRepository(input.executor)
-  return async (shopId): Promise<ShopeeCatalogAccess> => {
+  const accessCache = new Map<string, { access: ShopeeCatalogAccess; expiresAt: number }>()
+  const inflightAccess = new Map<string, Promise<ShopeeCatalogAccess>>()
+
+  async function resolveFresh(shopId: string): Promise<ShopeeCatalogAccess> {
     const internalShopId = ShopIdSchema.parse(shopId)
     const rows = await input.executor.query({
       name: "catalog.inline_access.binding",
@@ -198,6 +205,29 @@ export function createInlineCatalogAccessResolver(input: {
       })
     }
     return { accessToken, shop: { externalShopId, market } }
+  }
+
+  // Serve a cached access token when fresh, and de-duplicate concurrent
+  // refreshes for the same shop into a single credential rotation. Without this,
+  // the parallel requests fired on first page load each tried to rotate the same
+  // credential revision, so all but one failed and the UI showed a warning until
+  // a manual refresh.
+  return async (shopId): Promise<ShopeeCatalogAccess> => {
+    const key = ShopIdSchema.parse(shopId)
+    const cached = accessCache.get(key)
+    if (cached !== undefined && cached.expiresAt > Date.now()) return cached.access
+    const pending = inflightAccess.get(key)
+    if (pending !== undefined) return pending
+    const promise = resolveFresh(key)
+      .then((access) => {
+        accessCache.set(key, { access, expiresAt: Date.now() + INLINE_ACCESS_TTL_MS })
+        return access
+      })
+      .finally(() => {
+        inflightAccess.delete(key)
+      })
+    inflightAccess.set(key, promise)
+    return promise
   }
 }
 

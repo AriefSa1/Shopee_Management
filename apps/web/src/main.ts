@@ -81,6 +81,10 @@ function start(): void {
       query_timeout: 12_000,
     })
     const executor = createPostgresExecutor(asPostgresPool(pool))
+    // One shared access resolver across every Shopee reader so its per-shop token
+    // cache and in-flight de-duplication span all endpoints, and the parallel
+    // requests fired on first page load trigger a single credential refresh.
+    const resolveAccess = createInlineCatalogAccessResolver({ environment: process.env, executor })
     app = createProductionWebApp({
       database,
       ...(spaPublicDir === undefined ? {} : { spaPublicDir }),
@@ -101,7 +105,7 @@ function start(): void {
           baseUrl: "https://partner.shopeemobile.com",
           partnerId: oauthConfig.partnerId,
           partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",
-          resolveAccess: createInlineCatalogAccessResolver({ environment: process.env, executor }),
+          resolveAccess,
         }),
         collectedAt: new Date().toISOString(),
         authenticate: () => null,
@@ -110,19 +114,19 @@ function start(): void {
         baseUrl: "https://partner.shopeemobile.com",
         partnerId: oauthConfig.partnerId,
         partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",
-        resolveAccess: createInlineCatalogAccessResolver({ environment: process.env, executor }),
+        resolveAccess,
       }),
       marketingInsightsReader: createShopeeMarketingInsightsReader({
         baseUrl: "https://partner.shopeemobile.com",
         partnerId: oauthConfig.partnerId,
         partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",
-        resolveAccess: createInlineCatalogAccessResolver({ environment: process.env, executor }),
+        resolveAccess,
       }),
       adsReader: createShopeeAdsReader({
         baseUrl: "https://partner.shopeemobile.com",
         partnerId: oauthConfig.partnerId,
         partnerKey: process.env["SHOPEE_PARTNER_KEY"] ?? "",
-        resolveAccess: createInlineCatalogAccessResolver({ environment: process.env, executor }),
+        resolveAccess,
       }),
     })
     if (process.env["INLINE_WORKER_ENABLED"] === "true") {
