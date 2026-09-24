@@ -217,9 +217,19 @@ export type GmsReport = {
 export type GmsItem = { itemId?: number; report?: GmsReport }
 
 export type AdsRawResponses = {
+  totalBalance: unknown
+  shopToggleInfo: unknown
+  gmsEligibility: unknown
+  recommendedItemList: unknown
+  recommendedKeywordList: unknown
+  budgetSuggestion: unknown
+  recommendedRoiTarget: unknown
   dailyPerformance: unknown
+  cpcHourlyPerformance: unknown
   productCampaignIdList: unknown
   productCampaignSettingInfo: unknown
+  productCampaignDailyPerformance: unknown
+  productCampaignHourlyPerformance: unknown
   gmsCampaignPerformance: unknown
   gmsItemPerformance: unknown
   gmsDeletedItem: unknown

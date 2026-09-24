@@ -1,4 +1,4 @@
-import { createHmac } from "node:crypto"
+import { createHmac, randomUUID } from "node:crypto"
 import { z } from "zod"
 import { type ShopeeShopId, ShopeeShopIdSchema } from "./shopee-oauth.ts"
 import type { ShopeeCatalogAccess, ShopeeCatalogAccessResolver } from "./shopee-product-catalog.ts"
@@ -9,6 +9,16 @@ const PRODUCT_CAMPAIGN_SETTING_PATH = "/api/v2/ads/get_product_level_campaign_se
 const GMS_DELETED_ITEM_PATH = "/api/v2/ads/list_gms_user_deleted_item"
 const GMS_CAMPAIGN_PERFORMANCE_PATH = "/api/v2/ads/get_gms_campaign_performance"
 const GMS_ITEM_PERFORMANCE_PATH = "/api/v2/ads/get_gms_item_performance"
+const TOTAL_BALANCE_PATH = "/api/v2/ads/get_total_balance"
+const SHOP_TOGGLE_INFO_PATH = "/api/v2/ads/get_shop_toggle_info"
+const RECOMMENDED_ITEM_LIST_PATH = "/api/v2/ads/get_recommended_item_list"
+const RECOMMENDED_KEYWORD_LIST_PATH = "/api/v2/ads/get_recommended_keyword_list"
+const CPC_HOURLY_PERFORMANCE_PATH = "/api/v2/ads/get_all_cpc_ads_hourly_performance"
+const PRODUCT_CAMPAIGN_DAILY_PATH = "/api/v2/ads/get_product_campaign_daily_performance"
+const PRODUCT_CAMPAIGN_HOURLY_PATH = "/api/v2/ads/get_product_campaign_hourly_performance"
+const BUDGET_SUGGESTION_PATH = "/api/v2/ads/get_create_product_ad_budget_suggestion"
+const RECOMMENDED_ROI_TARGET_PATH = "/api/v2/ads/get_product_recommended_roi_target"
+const GMS_ELIGIBILITY_PATH = "/api/v2/ads/check_create_gms_product_campaign_eligibility"
 
 const DailyRowSchema = z.object({
   date: z.string(),
@@ -152,9 +162,19 @@ export type ShopeeAdsReader = {
 // inspection view. Each section is captured independently so one failing call
 // still shows the others.
 export type AdsRaw = {
+  totalBalance: unknown
+  shopToggleInfo: unknown
+  gmsEligibility: unknown
+  recommendedItemList: unknown
+  recommendedKeywordList: unknown
+  budgetSuggestion: unknown
+  recommendedRoiTarget: unknown
   dailyPerformance: unknown
+  cpcHourlyPerformance: unknown
   productCampaignIdList: unknown
   productCampaignSettingInfo: unknown
+  productCampaignDailyPerformance: unknown
+  productCampaignHourlyPerformance: unknown
   gmsCampaignPerformance: unknown
   gmsItemPerformance: unknown
   gmsDeletedItem: unknown
@@ -485,15 +505,38 @@ export function createShopeeAdsReader(input: {
 
     async readAdsRaw(request) {
       const ctx = await context(request.shopId)
+      const performanceDate = request.endDate
+      const noCampaigns = { note: "no_campaigns" }
       const [
+        totalBalance,
+        shopToggleInfo,
+        gmsEligibility,
+        recommendedItemList,
+        budgetSuggestion,
         dailyPerformance,
+        cpcHourlyPerformance,
         productCampaignIdList,
         gmsCampaignPerformance,
         gmsItemPerformance,
         gmsDeletedItem,
       ] = await Promise.all([
+        rawSection(ctx, "GET", TOTAL_BALANCE_PATH, {}),
+        rawSection(ctx, "GET", SHOP_TOGGLE_INFO_PATH, {}),
+        rawSection(ctx, "GET", GMS_ELIGIBILITY_PATH, {}),
+        rawSection(ctx, "GET", RECOMMENDED_ITEM_LIST_PATH, {}),
+        rawSection(ctx, "GET", BUDGET_SUGGESTION_PATH, {
+          query: {
+            reference_id: randomUUID(),
+            product_selection: "auto",
+            campaign_placement: "all",
+            bidding_method: "auto",
+          },
+        }),
         rawSection(ctx, "GET", DAILY_PERFORMANCE_PATH, {
           query: { start_date: request.startDate, end_date: request.endDate },
+        }),
+        rawSection(ctx, "GET", CPC_HOURLY_PERFORMANCE_PATH, {
+          query: { performance_date: performanceDate },
         }),
         rawSection(ctx, "GET", PRODUCT_CAMPAIGN_ID_LIST_PATH, {
           query: { ad_type: "all", offset: "0", limit: "5000" },
@@ -506,28 +549,83 @@ export function createShopeeAdsReader(input: {
         }),
         rawSection(ctx, "POST", GMS_DELETED_ITEM_PATH, { body: { offset: 0, limit: 100 } }),
       ])
+
       const parsedIds = ProductCampaignIdSchema.safeParse(productCampaignIdList)
       const campaignIds = parsedIds.success
         ? (parsedIds.data.response?.campaign_list ?? [])
             .map((entry) => entry.campaign_id)
             .slice(0, 100)
         : []
-      const productCampaignSettingInfo =
+      const campaignIdList = campaignIds.join(",")
+      const [
+        productCampaignSettingInfo,
+        productCampaignDailyPerformance,
+        productCampaignHourlyPerformance,
+      ] =
         campaignIds.length > 0
-          ? await rawSection(ctx, "GET", PRODUCT_CAMPAIGN_SETTING_PATH, {
-              query: { info_type_list: "1,2,3,4", campaign_id_list: campaignIds.join(",") },
-            })
-          : { note: "no_campaigns" }
+          ? await Promise.all([
+              rawSection(ctx, "GET", PRODUCT_CAMPAIGN_SETTING_PATH, {
+                query: { info_type_list: "1,2,3,4", campaign_id_list: campaignIdList },
+              }),
+              rawSection(ctx, "GET", PRODUCT_CAMPAIGN_DAILY_PATH, {
+                query: {
+                  start_date: request.startDate,
+                  end_date: request.endDate,
+                  campaign_id_list: campaignIdList,
+                },
+              }),
+              rawSection(ctx, "GET", PRODUCT_CAMPAIGN_HOURLY_PATH, {
+                query: { performance_date: performanceDate, campaign_id_list: campaignIdList },
+              }),
+            ])
+          : [noCampaigns, noCampaigns, noCampaigns]
+
+      const referenceItemId = firstItemId(productCampaignSettingInfo)
+      const noReference = { note: "no_reference_item" }
+      const [recommendedKeywordList, recommendedRoiTarget] =
+        referenceItemId === undefined
+          ? [noReference, noReference]
+          : await Promise.all([
+              rawSection(ctx, "GET", RECOMMENDED_KEYWORD_LIST_PATH, {
+                query: { item_id: String(referenceItemId) },
+              }),
+              rawSection(ctx, "GET", RECOMMENDED_ROI_TARGET_PATH, {
+                query: { reference_id: randomUUID(), item_id: String(referenceItemId) },
+              }),
+            ])
+
       return {
+        totalBalance,
+        shopToggleInfo,
+        gmsEligibility,
+        recommendedItemList,
+        recommendedKeywordList,
+        budgetSuggestion,
+        recommendedRoiTarget,
         dailyPerformance,
+        cpcHourlyPerformance,
         productCampaignIdList,
         productCampaignSettingInfo,
+        productCampaignDailyPerformance,
+        productCampaignHourlyPerformance,
         gmsCampaignPerformance,
         gmsItemPerformance,
         gmsDeletedItem,
       }
     },
   }
+}
+
+// Pick a reference product id from campaign settings, used to call the
+// item-scoped recommendation APIs in the raw inspector.
+function firstItemId(settingInfo: unknown): number | undefined {
+  const parsed = CampaignSettingSchema.safeParse(settingInfo)
+  if (!parsed.success) return undefined
+  for (const campaign of parsed.data.response?.campaign_list ?? []) {
+    const itemId = campaign.common_info?.item_id_list?.[0]
+    if (typeof itemId === "number") return itemId
+  }
+  return undefined
 }
 
 // Return an untouched provider body, or an error marker when the call fails, so

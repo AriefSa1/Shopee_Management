@@ -18,9 +18,19 @@ import { type AdsRaw, type AdsRawResponses, api, ApiError, type Store, storeLabe
 import { type DateRange, RangePicker } from "./RangePicker.tsx"
 
 const apiSections: { key: keyof AdsRawResponses; api: string; note: string }[] = [
-  { key: "dailyPerformance", api: "get_all_cpc_ads_daily_performance", note: "Performa CPC harian (per tanggal)" },
+  { key: "totalBalance", api: "get_total_balance", note: "Saldo kredit iklan (real-time)" },
+  { key: "shopToggleInfo", api: "get_shop_toggle_info", note: "Status toggle iklan toko" },
+  { key: "gmsEligibility", api: "check_create_gms_product_campaign_eligibility", note: "Kelayakan membuat kampanye GMS" },
+  { key: "recommendedItemList", api: "get_recommended_item_list", note: "Rekomendasi SKU untuk diiklankan" },
+  { key: "recommendedKeywordList", api: "get_recommended_keyword_list", note: "Rekomendasi kata kunci (per item referensi)" },
+  { key: "budgetSuggestion", api: "get_create_product_ad_budget_suggestion", note: "Saran budget (product_selection=auto)" },
+  { key: "recommendedRoiTarget", api: "get_product_recommended_roi_target", note: "Saran target ROI (per item referensi)" },
+  { key: "dailyPerformance", api: "get_all_cpc_ads_daily_performance", note: "Performa CPC harian (rentang tanggal)" },
+  { key: "cpcHourlyPerformance", api: "get_all_cpc_ads_hourly_performance", note: "Performa CPC per jam (tanggal akhir)" },
   { key: "productCampaignIdList", api: "get_product_level_campaign_id_list", note: "Daftar ID kampanye produk" },
   { key: "productCampaignSettingInfo", api: "get_product_level_campaign_setting_info", note: "Setelan kampanye produk" },
+  { key: "productCampaignDailyPerformance", api: "get_product_campaign_daily_performance", note: "Performa kampanye produk harian" },
+  { key: "productCampaignHourlyPerformance", api: "get_product_campaign_hourly_performance", note: "Performa kampanye produk per jam" },
   { key: "gmsCampaignPerformance", api: "get_gms_campaign_performance", note: "Performa kampanye GMV Max" },
   { key: "gmsItemPerformance", api: "get_gms_item_performance", note: "Performa item GMV Max" },
   { key: "gmsDeletedItem", api: "list_gms_user_deleted_item", note: "Item GMV Max yang dihapus" },
@@ -139,7 +149,7 @@ export function AdsRawInspector({
           Gagal memuat data mentah ({error}). Periksa izin Ads untuk toko ini.
         </Alert>
       ) : data ? (
-        <Accordion multiple defaultValue={apiSections.map((section) => section.api)} variant="separated">
+        <Accordion multiple variant="separated">
           {apiSections.map((section) => (
             <Accordion.Item key={section.api} value={section.api}>
               <Accordion.Control>
