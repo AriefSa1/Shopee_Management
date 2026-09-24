@@ -1,0 +1,14 @@
+{
+  "scenario": "official-oauth-provider-fixture",
+  "invocation": "node --experimental-strip-types packages/oauth/src/manual-oauth.ts",
+  "exitCode": 0,
+  "callback": "claimed",
+  "grant": {
+    "kind": "main_account",
+    "subjectCount": 1,
+    "bindingCount": 2
+  },
+  "secretFieldsPresent": false,
+  "networkCalls": 0,
+  "capturedAt": "2026-09-09T00:00:00.000Z"
+}

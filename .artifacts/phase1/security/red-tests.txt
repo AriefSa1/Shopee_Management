@@ -1,0 +1,13 @@
+Phase 1 security fail-first evidence
+Date: 2026-09-09 Asia/Jakarta
+
+Invocation:
+  node --experimental-strip-types --test packages/observability/src/safe-telemetry.test.ts packages/runtime-boundaries/src/runtime-boundaries.test.ts packages/runtime-boundaries/src/package-boundaries.test.ts
+
+Binary observable: exit code 1; tests 4; pass 2; fail 2.
+
+Intended failures before implementation:
+  1. safe-telemetry.test.ts failed with ERR_MODULE_NOT_FOUND for safe-telemetry.ts.
+  2. runtime-boundaries.test.ts failed with ERR_MODULE_NOT_FOUND for runtime-boundaries.ts.
+
+The two package-boundary static assertions passed because no unapproved source dependency existed before the new primitives were added. No credential, cookie, header, OAuth state/code, or raw upstream payload was printed.

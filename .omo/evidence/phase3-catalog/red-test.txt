@@ -1,0 +1,7 @@
+Invocation: node --experimental-strip-types --test packages/catalog/src/catalog.test.ts
+Exit code: 1
+
+Observed failure before implementation:
+ERR_MODULE_NOT_FOUND: Cannot find module packages/catalog/src/catalog.ts imported from packages/catalog/src/catalog.test.ts.
+
+The failing specification was added before the catalog contract module existed. The subsequent implementation was verified by the focused test invocation recorded in verification.md.

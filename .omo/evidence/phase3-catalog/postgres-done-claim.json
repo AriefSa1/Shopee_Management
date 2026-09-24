@@ -1,0 +1,37 @@
+{
+  "phase": "phase3-catalog",
+  "slice": "provider-free-postgres-catalog-persistence-contract",
+  "verdict": "confirmed_bounded_slice",
+  "tests": {
+    "command": "node --experimental-strip-types --test packages/catalog/src/postgres-catalog.test.ts",
+    "passed": 6,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "manualArtifact": ".artifacts/phase3/catalog/manual-postgres-catalog.json",
+  "manual": {
+    "exitCode": 0,
+    "saveRead": true,
+    "variantRoundTrip": true,
+    "organizationShopIsolation": true,
+    "numericZeroPreserved": true,
+    "missingStockPreserved": true,
+    "partialRunPreserved": true,
+    "incompleteRunDoesNotInferDeletion": true,
+    "migrationContract": true,
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "kmsCalls": 0,
+    "shopeeMutations": 0,
+    "externalWrites": 0,
+    "secretFieldsPresent": false
+  },
+  "remainingGates": [
+    "live_postgresql_migration_fk_grant_rollback_and_concurrency_validation",
+    "durable_catalog_sync_worker_integration",
+    "official_shopee_pagination_and_rate_limit_capability_evidence",
+    "authenticated_app_wiring_and_deployment",
+    "staging_validation"
+  ]
+}

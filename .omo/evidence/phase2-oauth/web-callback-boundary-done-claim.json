@@ -1,0 +1,28 @@
+{
+  "phase": "phase2",
+  "slice": "provider_free_oauth_web_callback_boundary",
+  "verdict": "confirmed",
+  "focusedTests": { "passed": 5, "failed": 0 },
+  "combinedOAuthTests": { "passed": 22, "failed": 0 },
+  "manualArtifact": ".artifacts/phase2/oauth/manual-oauth-api.json",
+  "routePaths": [
+    "/api/auth/shopee/start",
+    "/api/auth/shopee/callback"
+  ],
+  "writeAdapter": "disabled",
+  "serverClock": "injected",
+  "organizationBinding": "claim_input_and_state_checked",
+  "externalCalls": {
+    "provider": 0,
+    "network": 0,
+    "database": 0,
+    "kms": 0
+  },
+  "remainingGates": [
+    "production session authentication",
+    "durable PostgreSQL claim/lock",
+    "KMS envelope integration",
+    "official authorization-start and callback capability evidence",
+    "worker exchange deployment wiring"
+  ]
+}

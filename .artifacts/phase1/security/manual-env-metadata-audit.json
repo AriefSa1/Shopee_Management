@@ -1,0 +1,17 @@
+{
+  "scenario": "phase1-env-metadata-audit",
+  "appEnvironment": "development",
+  "databaseConfigured": true,
+  "partnerFieldsPresent": [
+    "SHOPEE_PARTNER_ID",
+    "SHOPEE_PARTNER_KEY"
+  ],
+  "tokenFieldsPresent": [],
+  "tokenEnvRisk": "none_detected",
+  "gitignoreProtectsEnv": true,
+  "secretValuesEmitted": false,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0
+}

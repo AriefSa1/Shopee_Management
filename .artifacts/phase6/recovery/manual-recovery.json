@@ -1,0 +1,15 @@
+{
+  "scenario": "phase6-provider-free-outcome-unknown-recovery",
+  "capabilityUnknown": true,
+  "destinationCount": 2,
+  "mutationPolicy": "disabled",
+  "confirmationBinding": "936d434bf67cafb6dae2bac3ea801c383a4bb01c5c3fe83303468ad9c07d0f3f",
+  "commandId": "write-command:936d434bf67cafb6dae2bac3ea801c383a4bb01c5c3fe83303468ad9c07d0f3f",
+  "unknownState": "outcome_unknown",
+  "blindRetryDenied": true,
+  "operatorResolution": "reauth_required",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "secretFieldsPresent": false
+}

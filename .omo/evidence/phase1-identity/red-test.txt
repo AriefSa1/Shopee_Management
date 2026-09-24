@@ -1,0 +1,3 @@
+Command: node --experimental-strip-types --test packages/identity/src/authorize.test.ts
+Exit code: 1
+Observed: 3 tests failed for the intended behavioral reason. The placeholder returned allow/authorized for revoked membership, Staff confirm_publish, and a cross-organization shop ID; each test expected its exact deny reason.

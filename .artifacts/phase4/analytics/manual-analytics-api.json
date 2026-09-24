@@ -1,0 +1,10 @@
+{
+  "status": 200,
+  "runStatus": "complete",
+  "metric": { "kind": "value", "value": 0, "unit": "count", "window": "rolling_30_days" },
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "secretFieldsPresent": false,
+  "writeEnabled": false
+}

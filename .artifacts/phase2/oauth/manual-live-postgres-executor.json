@@ -1,0 +1,13 @@
+{
+  "scenario": "phase2-live-postgres-executor",
+  "status": "pass",
+  "databaseConfigured": true,
+  "databaseName": "ShopeeManagement",
+  "databaseUser": "shopee_app",
+  "oauthTablesPresent": true,
+  "missingTables": [],
+  "transactionCommitted": true,
+  "secretValuesEmitted": false,
+  "source": "packages/persistence/src/manual-live-postgres-executor.ts",
+  "observedAt": "2026-09-10"
+}

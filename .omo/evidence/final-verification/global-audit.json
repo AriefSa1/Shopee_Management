@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "date": "2026-09-10",
+  "timezone": "Asia/Jakarta",
+  "verdict": "partial",
+  "scope": "provider-free global audit; read-only verification",
+  "automated": {
+    "packageSuite": { "passed": 212, "failed": 0, "exitCode": 0 },
+    "consolidatedSuite": { "passed": 223, "failed": 0, "exitCode": 0, "dependencyMode": "external_pnpm_loader" },
+    "manualCli": { "passed": 35, "failed": 0, "exitCode": 0 },
+    "manualJsonArtifacts": { "parsed": 41, "invalid": 0, "excludedTemporaryVerificationConfig": true },
+    "doneClaims": { "parsed": 22, "invalid": 0, "referencedPathsMissing": 0 },
+    "ledger": { "lines": 55, "invalid": 0, "latestEvent": "strict_external_typescript_recheck_after_analytics_and_recovery_fixture_repairs" },
+    "sourceHashes": { "checked": 6, "matched": 6, "mismatched": 0, "scope": "pre-existing baseline hashes" },
+    "markdownLinks": { "checked": 75, "missing": 0, "scope": "previous baseline; current local paths remain present" }
+  },
+  "safety": {
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "dbCalls": 0,
+    "shopeeMutations": 0,
+    "externalWrites": 0,
+    "secretFieldsPresentTrue": 0,
+    "suspiciousSensitiveStringValues": 0,
+    "envFileRead": false
+  },
+  "staticScans": {
+    "runtimeFetchOutsideWorker": 0,
+    "unexpectedProcessEnvInFoundationalPackages": 0,
+    "browserCookieRuntimeOutsideWorker": 0,
+    "externalSdkCallsExecuted": 0
+  },
+  "repositoryGates": {
+    "pnpmTest": "blocked_managed_workspace_tmp_enoent",
+    "pnpmTypecheck": "not_reached_pnpm_install_tmp_enoent; exact_external_virtual_store_typecheck_clean_but_standard_resolution_unavailable",
+    "pnpmLint": "blocked_managed_workspace_tmp_enoent",
+    "directTsc": "exact_external_virtual_store_paths_171_files_0_diagnostics; ordinary_workspace_resolution_blocked_missing_hono_and_node_types",
+    "directBiome": "ran_external_biome_failed_preexisting_format_import_lint_violations",
+    "gitWorktree": false
+  },
+  "validationLimitations": [
+    "pnpm dependency bootstrap is blocked by managed workspace _tmp file creation",
+    "external Biome binary ran across 174 files and reported 268 baseline format/import/lint violations; targeted new files have no unresolved semantic type errors",
+    "remote development database was probed read-only as owner; schema mutation was intentionally not performed",
+    "ephemeral local PostgreSQL migration validation passed; least-privilege remote role denial remains unproven",
+    "strict external TypeScript is clean across 171 package and app files when exact pnpm virtual-store paths are supplied; ordinary workspace resolution cannot resolve @hono/node-server and local @types/node because pnpm bootstrap is blocked",
+    "Biome is unavailable without a normal dependency installation"
+  ],
+  "capabilityGate": {
+    "officialResearchHttpStatus": 403,
+    "requiredGates": 9,
+    "unknownGates": 9,
+    "writeDecision": "deny_writes_until_all_gates_are_officially_verified"
+  },
+  "residualGates": [
+    "standard workspace dependency installation",
+    "repository-wide typecheck and lint cleanup",
+    "live PostgreSQL migrations grants and concurrency",
+    "KMS and production secret-provider validation",
+    "official Shopee capability evidence",
+    "Phase 6 confirmed write and outcome-unknown recovery",
+    "staging deployment and explicit pilot authorization",
+    "human review of existing non-empty .env configuration"
+  ]
+}

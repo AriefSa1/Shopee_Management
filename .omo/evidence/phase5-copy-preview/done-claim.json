@@ -1,0 +1,34 @@
+{
+  "lane": "phase5_copy_preview",
+  "status": "ready_for_independent_verification",
+  "scope": [
+    "packages/copy-preview/**",
+    ".artifacts/phase5/copy-preview/manual-copy-preview.json",
+    ".omo/evidence/phase5-copy-preview/**"
+  ],
+  "redTest": {
+    "invocation": "node --experimental-strip-types --test packages/copy-preview/src/copy-preview.test.ts",
+    "observableBeforeFinalBoundary": "TypeError: preview.createCopyPreview is not a function"
+  },
+  "automatedScenario": {
+    "invocation": "node --experimental-strip-types --test packages/copy-preview/src/copy-preview.test.ts",
+    "exitCode": 0,
+    "passed": 6,
+    "failed": 0,
+    "observable": "stable hashes, immutable projection, invalid destination validation, guarded supersede generation, disabled mutation boundary, and ten local destination previews"
+  },
+  "manualScenario": {
+    "invocation": "node --experimental-strip-types packages/copy-preview/src/manual-copy-preview.ts",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase5/copy-preview/manual-copy-preview.json",
+    "observable": "valid local preview, two valid destinations, superseded command version 2, read-only adapter, networkCalls 0, and preConfirmationShopeeMutationTotal 0"
+  },
+  "toolingGap": "pnpm exec tsc --noEmit could not run because pnpm tried managed temporary dependency setup and failed with ENOENT for _tmp_*; no local tsc or biome binary exists. The TypeScript no-excuse checker likewise could not resolve typescript from this project.",
+  "externalWrites": false,
+  "residualRisks": [
+    "This local provider-fixture contract does not persist snapshots, intents, previews, or serialization locks in PostgreSQL.",
+    "No authenticated API/UI, RBAC recheck, confirmation hash binding, outbox, or queue worker is included in this slice.",
+    "Official Shopee category, mandatory attribute, media, logistics, visibility, variation, and write capability evidence remain mandatory pre-write/staging gates.",
+    "No real Shopee request, credential lookup, environment read, database connection, browser operation, or upstream mutation was performed."
+  ]
+}

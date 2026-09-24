@@ -1,0 +1,55 @@
+{
+  "semantics": "at-least-once",
+  "malformedInput": "rejected",
+  "transitions": [
+    {
+      "step": "outbox_dispatch",
+      "observable": "PENDING"
+    },
+    {
+      "step": "duplicate_dispatch",
+      "observable": "duplicate:40000000-0000-4000-8000-000000000010"
+    },
+    {
+      "step": "first_claim",
+      "observable": "generation:1"
+    },
+    {
+      "step": "expired_lease_reclaim",
+      "observable": "generation:2"
+    },
+    {
+      "step": "interruption_recovery",
+      "observable": "reclaimed:manual-worker-b"
+    },
+    {
+      "step": "stale_lease_commit",
+      "observable": "rejected"
+    },
+    {
+      "step": "ack_before_commit",
+      "observable": "rejected"
+    },
+    {
+      "step": "commit_before_ack",
+      "observable": "COMPLETED"
+    },
+    {
+      "step": "lost_ack_redelivery",
+      "observable": "terminal_noop"
+    },
+    {
+      "step": "ack_after_commit",
+      "observable": "ACKNOWLEDGED"
+    },
+    {
+      "step": "scheduler_collision",
+      "observable": "created:duplicate"
+    },
+    {
+      "step": "poison_replay",
+      "observable": "PENDING:true:20000000-0000-4000-8000-000000000012"
+    }
+  ],
+  "cleanup": "process-local stores discarded on exit"
+}

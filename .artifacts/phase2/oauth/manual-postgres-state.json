@@ -1,0 +1,12 @@
+{
+  "scenario": "postgres-oauth-state-provider-free-contract",
+  "claimKind": "claimed",
+  "rowLock": true,
+  "callbackCodePersisted": false,
+  "organizationScoped": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "kmsCalls": 0,
+  "shopeeMutations": 0,
+  "secretFieldsPresent": false
+}

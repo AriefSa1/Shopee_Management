@@ -1,0 +1,38 @@
+{
+  "claim": "Provider-free configuration mode and secret-scan boundaries are complete within the assigned Phase 1 security scope.",
+  "source": [
+    "packages/config/src/runtime-config.ts",
+    "packages/config/src/manual-security-config.ts",
+    "packages/observability/src/secret-scan.ts"
+  ],
+  "tests": [
+    "packages/config/src/runtime-config.test.ts",
+    "packages/observability/src/secret-scan.test.ts",
+    "packages/observability/src/safe-telemetry.test.ts",
+    "packages/runtime-boundaries/src/runtime-boundaries.test.ts",
+    "packages/runtime-boundaries/src/package-boundaries.test.ts"
+  ],
+  "automated": {
+    "command": "node --experimental-strip-types --test packages/config/src/runtime-config.test.ts packages/observability/src/secret-scan.test.ts packages/observability/src/safe-telemetry.test.ts packages/runtime-boundaries/src/runtime-boundaries.test.ts packages/runtime-boundaries/src/package-boundaries.test.ts",
+    "passed": 22,
+    "failed": 0
+  },
+  "manualQa": {
+    "command": "node --experimental-strip-types packages/config/src/manual-security-config.ts",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase1/security/manual-config-security.json"
+  },
+  "residualGates": [
+    "human review of existing non-empty .env",
+    "live PostgreSQL role-denial checks",
+    "KMS integration",
+    "repository-wide typecheck and lint",
+    "deployment validation"
+  ],
+  "externalCalls": {
+    "network": 0,
+    "database": 0,
+    "shopeeMutations": 0,
+    "credentialsUsed": false
+  }
+}

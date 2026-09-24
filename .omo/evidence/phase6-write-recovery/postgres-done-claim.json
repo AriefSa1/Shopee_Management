@@ -1,0 +1,15 @@
+{
+  "phase": "phase6-write-recovery-postgres-persistence",
+  "status": "confirmed_bounded_slice",
+  "focusedTests": { "passed": 4, "failed": 0 },
+  "recoveryRegressionTests": { "passed": 8, "failed": 0 },
+  "manualExitCode": 0,
+  "artifact": ".artifacts/phase6/write-recovery/manual-postgres-write-recovery.json",
+  "remainingGates": [
+    "live_postgresql",
+    "kms_and_credential_subject_integration",
+    "durable_confirmation_outbox_worker_integration",
+    "official_shopee_capability",
+    "staging_and_human_write_authorization"
+  ]
+}

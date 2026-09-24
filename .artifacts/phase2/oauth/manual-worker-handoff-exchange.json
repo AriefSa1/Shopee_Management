@@ -1,0 +1,9 @@
+{
+  "scenario": "phase2-worker-handoff-exchange-provider-free",
+  "activeGrant": true,
+  "grantPersisted": true,
+  "handoffCompleted": true,
+  "providerCalls": 0,
+  "networkCalls": 0,
+  "secretValuesEmitted": false
+}

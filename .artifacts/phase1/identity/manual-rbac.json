@@ -1,0 +1,82 @@
+{
+  "generatedAt": "2026-09-09T00:00:00.000Z",
+  "entrypoint": "packages/identity/src/manual-rbac.ts",
+  "scenarios": [
+    {
+      "name": "owner_manages_shop",
+      "role": "owner",
+      "permission": "manage_shop_connections",
+      "expected": { "decision": "allow", "reason": "authorized" },
+      "observed": { "decision": "allow", "reason": "authorized" },
+      "logOutcome": "authorization_allowed",
+      "passed": true
+    },
+    {
+      "name": "admin_confirms_publication",
+      "role": "admin",
+      "permission": "confirm_publish",
+      "expected": { "decision": "allow", "reason": "authorized" },
+      "observed": { "decision": "allow", "reason": "authorized" },
+      "logOutcome": "authorization_allowed",
+      "passed": true
+    },
+    {
+      "name": "staff_publication_denied",
+      "role": "staff",
+      "permission": "confirm_publish",
+      "expected": { "decision": "deny", "reason": "role_forbidden" },
+      "observed": { "decision": "deny", "reason": "role_forbidden" },
+      "logOutcome": "authorization_denied",
+      "passed": true
+    },
+    {
+      "name": "cross_organization_shop_denied",
+      "role": "owner",
+      "permission": "read_catalog_analytics_status",
+      "expected": { "decision": "deny", "reason": "shop_organization_mismatch" },
+      "observed": { "decision": "deny", "reason": "shop_organization_mismatch" },
+      "logOutcome": "authorization_denied",
+      "passed": true
+    },
+    {
+      "name": "stale_authz_revision_denied",
+      "role": "admin",
+      "permission": "manual_sync",
+      "expected": { "decision": "deny", "reason": "authz_revision_stale" },
+      "observed": { "decision": "deny", "reason": "authz_revision_stale" },
+      "logOutcome": "authorization_denied",
+      "passed": true
+    },
+    {
+      "name": "forged_organization_denied",
+      "role": "owner",
+      "permission": "manage_memberships_roles_settings",
+      "expected": { "decision": "deny", "reason": "membership_not_found" },
+      "observed": { "decision": "deny", "reason": "membership_not_found" },
+      "logOutcome": "authorization_denied",
+      "passed": true
+    },
+    {
+      "name": "forged_shop_denied",
+      "role": "owner",
+      "permission": "read_catalog_analytics_status",
+      "expected": { "decision": "deny", "reason": "shop_not_found" },
+      "observed": { "decision": "deny", "reason": "shop_not_found" },
+      "logOutcome": "authorization_denied",
+      "passed": true
+    }
+  ],
+  "adversarialProbes": {
+    "malformedRoleRejected": true,
+    "malformedIdentityRejected": true,
+    "staleAuthzRevisionDenied": true,
+    "forgedOrganizationDenied": true,
+    "forgedShopDenied": true,
+    "misleadingSuccessLogDetected": false
+  },
+  "cleanup": {
+    "externalResourcesCreated": 0,
+    "temporaryResourcesRemaining": 0
+  },
+  "passed": true
+}

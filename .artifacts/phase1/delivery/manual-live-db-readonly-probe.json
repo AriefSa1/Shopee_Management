@@ -1,0 +1,13 @@
+{
+  "scenario": "development-postgres-readonly-probe",
+  "connection": "passed",
+  "databaseName": "ShopeeManagement",
+  "roleClass": "owner",
+  "connectPrivilege": true,
+  "publicUsagePrivilege": true,
+  "publicCreatePrivilege": true,
+  "applicationSchemaPresentBeforeMigration": false,
+  "writesPerformed": false,
+  "leastPrivilegeRoleDenial": "not_proven",
+  "secretValuesEmitted": false
+}

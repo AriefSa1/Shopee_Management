@@ -1,0 +1,7 @@
+Invocation: node --experimental-strip-types --test packages/oauth/src/oauth-contracts.test.ts
+Observed before implementation: ERR_MODULE_NOT_FOUND for packages/oauth/src/index.ts.
+Interpretation: the contract test failed because the OAuth boundary module did not exist.
+
+Regression invocation: node --experimental-strip-types --test packages/oauth/src/oauth-state-time.test.ts
+Observed before timestamp repair: module load failed because `isOAuthStateExpired` was not exported.
+Interpretation: the missing normalizing comparison left expiry evaluation dependent on lexical ISO string ordering.

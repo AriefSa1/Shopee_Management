@@ -1,0 +1,12 @@
+{
+  "scenario": "durable-oauth-contract-fixture",
+  "attemptStored": true,
+  "refresh": {
+    "kind": "reauth_required",
+    "reason": "refresh_outcome_unknown"
+  },
+  "secretFieldsPresent": false,
+  "networkCalls": 0,
+  "databaseWrites": 0,
+  "kmsCalls": 0
+}

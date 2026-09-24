@@ -1,0 +1,35 @@
+{
+  "name": "shopee-multi-store-management",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env --experimental-strip-types apps/web/src/main.ts",
+    "web:dev": "node --env-file-if-exists=.env --experimental-strip-types --watch apps/web/src/main.ts",
+    "web:start": "node --env-file-if-exists=.env --experimental-strip-types apps/web/src/main.ts",
+    "worker:dev": "node --env-file-if-exists=.env --experimental-strip-types --watch apps/worker/src/main.ts",
+    "worker:start": "node --env-file-if-exists=.env --experimental-strip-types apps/worker/src/main.ts",
+    "worker:once": "node --env-file-if-exists=.env --experimental-strip-types apps/worker/src/once-main.ts",
+    "worker:encryption-preflight": "node --env-file-if-exists=.env --experimental-strip-types apps/worker/src/credential-encryption-preflight-main.ts",
+    "test": "node --experimental-strip-types --test apps/web/src/app.test.ts apps/worker/src/app.test.ts packages/config/src/runtime-config.test.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "biome check .",
+    "build": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.19.9",
+    "hono": "^4.9.8",
+    "pg": "^8.23.0",
+    "zod": "^4.1.8"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.2.4",
+    "@types/node": "^24.3.1",
+    "@types/pg": "^8.23.1",
+    "typescript": "^5.9.2"
+  }
+}

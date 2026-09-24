@@ -1,0 +1,14 @@
+{
+  "scenario": "oauth-web-provider-free-boundary",
+  "startStatus": 200,
+  "callbackStatus": 202,
+  "replayStatus": 409,
+  "writeAdapter": "disabled",
+  "next": "worker_exchange_pending",
+  "callbackCodePersisted": false,
+  "providerCalls": 0,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "kmsCalls": 0,
+  "secretFieldsPresent": false
+}

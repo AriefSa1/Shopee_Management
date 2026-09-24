@@ -1,0 +1,29 @@
+{
+  "phase": "phase6",
+  "scope": "provider-free-write-recovery-contract",
+  "verdict": "bounded_slice_complete",
+  "writeAdapter": "disabled",
+  "tests": {
+    "command": "node --experimental-strip-types --test packages/write-recovery/src/recovery.test.ts",
+    "passed": 8,
+    "failed": 0
+  },
+  "manualQa": {
+    "command": "node --experimental-strip-types packages/write-recovery/src/manual-recovery.ts",
+    "artifact": ".artifacts/phase6/recovery/manual-recovery.json",
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "secretFieldsPresent": false,
+    "blindRetryDenied": true,
+    "operatorResolution": "reauth_required"
+  },
+  "remainingGates": [
+    "official capability and permission verification",
+    "PostgreSQL persistence and idempotency",
+    "KMS-backed credential handling",
+    "deployed worker authentication",
+    "staging deployment",
+    "human approval before any confirmed write"
+  ]
+}

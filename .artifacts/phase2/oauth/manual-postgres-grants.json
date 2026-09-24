@@ -1,0 +1,16 @@
+{
+  "scenario": "postgres-oauth-grant-persistence-contract",
+  "saveRead": "passed",
+  "subjectCount": 1,
+  "shopBindingCount": 2,
+  "organizationScope": "passed",
+  "tokenColumnsPersisted": false,
+  "statements": 5,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "kmsCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

@@ -1,0 +1,14 @@
+{
+  "phase": "phase5-copy-preview-postgres-persistence",
+  "status": "confirmed_bounded_slice",
+  "focusedTests": { "passed": 3, "failed": 0 },
+  "manualExitCode": 0,
+  "artifact": ".artifacts/phase5/copy-preview/manual-postgres-copy-preview.json",
+  "remainingGates": [
+    "live_postgresql",
+    "production_authentication_and_rbac",
+    "confirmation_outbox_fencing",
+    "official_shopee_product_write_capability",
+    "staging_and_deployment"
+  ]
+}

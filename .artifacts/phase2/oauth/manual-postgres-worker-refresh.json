@@ -1,0 +1,12 @@
+{
+  "scenario": "postgres-worker-oauth-refresh",
+  "result": "rotated",
+  "revision": 2,
+  "expiresAt": "2026-11-09T00:00:00.000Z",
+  "rowLock": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false
+}

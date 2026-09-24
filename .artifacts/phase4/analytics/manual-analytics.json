@@ -1,0 +1,1 @@
+{"scenario":"provider-fixture-analytics-absence-and-coverage","runStatus":"partial","zero":{"kind":"value","value":0,"unit":"count","window":"rolling_30_days"},"omitted":{"kind":"not_returned"},"comparison":{"kind":"ineligible","reason":"collection_incomplete"},"networkCalls":0,"secretFieldsPresent":false}

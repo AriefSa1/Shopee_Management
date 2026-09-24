@@ -1,0 +1,14 @@
+{
+  "scenario": "phase6-write-recovery-operator-ui-contract",
+  "status": 200,
+  "htmlRendered": true,
+  "unknownAttemptRendered": true,
+  "resolutionFormRendered": true,
+  "mutationPolicy": "operator_api_only",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "liveProvider": "not_run"
+}

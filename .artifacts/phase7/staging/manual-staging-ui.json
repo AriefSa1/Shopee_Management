@@ -1,0 +1,11 @@
+{
+  "scenario": "staging-read-only-alpha-ui",
+  "status": 200,
+  "mutationControls": "unavailable",
+  "capabilityUnknown": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false
+}

@@ -1,0 +1,11 @@
+{
+  "scenario": "phase2-oauth-callback-handoff-provider-free",
+  "accepted": true,
+  "duplicateReturned": true,
+  "oneCommand": true,
+  "oneOutbox": true,
+  "rawCallbackInDelivery": false,
+  "databaseCalls": 0,
+  "providerCalls": 0,
+  "secretValuesEmitted": false
+}

@@ -1,0 +1,14 @@
+{
+  "scenario": "phase6-write-recovery-operator-api",
+  "listStatus": 200,
+  "resolveStatus": 202,
+  "scopedUnknownListed": true,
+  "resolveBoundToAuthenticatedActor": true,
+  "mutationPolicy": "disabled",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

@@ -1,0 +1,1 @@
+{"scenario":"authenticated-read-only-copy-preview-api","status":200,"previewCount":1,"previewKinds":["valid"],"adapter":{"mode":"read_only","preConfirmationShopeeMutationTotal":0},"networkCalls":0,"databaseCalls":0,"shopeeMutations":0,"secretFieldsPresent":false}

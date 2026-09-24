@@ -1,0 +1,20 @@
+# Runtime secrets must remain local; the tracked template is the only exception.
+.env
+.env.*
+!.env.example
+
+# Dependency and generated build artifacts.
+node_modules/
+coverage/
+dist/
+build/
+.next/
+.turbo/
+
+# Claude Code managed worktrees
+.claude/
+.omo/
+.omx/
+.deps/
+.codegraph/
+.artifacts/

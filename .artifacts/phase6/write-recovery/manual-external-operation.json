@@ -1,0 +1,13 @@
+{
+  "scenario": "phase6-external-operation-attempt-persistence",
+  "preparedPersisted": true,
+  "outcomeUnknownPersisted": true,
+  "retryAllowed": true,
+  "mutationPolicy": "disabled",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

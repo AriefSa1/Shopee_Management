@@ -1,0 +1,18 @@
+{
+  "scenario": "hierarchical-rate-limit-provider-free-contract",
+  "scopes": [
+    "partner_global",
+    "credential_subject",
+    "shop",
+    "endpoint"
+  ],
+  "firstAdmissionAllowed": true,
+  "providerCooldownDenied": true,
+  "unknownScopeDenied": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "liveProvider": "not_run"
+}

@@ -1,0 +1,37 @@
+Phase 1 scaffold fail-first evidence
+Date: 2026-09-09 Asia/Jakarta
+
+Invocation:
+  node_modules/.bin/vitest.cmd run
+Verification copy:
+  C:/Users/Kuda/.codex/visualizations/2026/09/08/01a08207-d1fb-7c41-aa13-9ab1db1f52a2/phase1-scaffold-test
+
+Binary observable: exit code 1.
+
+Intended failures:
+  1. runtime configuration > rejects missing production configuration without exposing environment values
+     Received: expected function to throw an error, but it did not.
+  2. web runtime health > identifies the web service when health is requested
+     Expected service=web; received service=service.
+  3. worker runtime health > identifies the worker service when health is requested
+     Expected service=worker; received service=service.
+
+Summary from runner:
+  Test Files  3 failed (3)
+  Tests       3 failed (3)
+
+No credential or environment value was printed.
+
+Corrective fail-first evidence after independent verification
+Invocation:
+  node --preserve-symlinks --preserve-symlinks-main --experimental-strip-types --test workspace/apps/web/src/app.test.ts workspace/apps/worker/src/app.test.ts workspace/packages/config/src/runtime-config.test.ts
+Source under test:
+  workspace junction resolved to C:/Users/Kuda/Documents/ChatGPT/Shopee Management
+
+Binary observable: exit code 1; tests 7; pass 5; fail 2.
+
+Intended corrective failures:
+  1. Web readiness returned dependencies.database="missing" instead of the structured state/reason contract.
+  2. Worker configured with an unreachable placeholder URL returned HTTP 200 instead of HTTP 503.
+
+This corrective red run supersedes the original readiness evidence. No database connection or credential was used.

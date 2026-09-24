@@ -1,0 +1,39 @@
+{
+  "scenario": "separate web and worker process health/readiness with worker interruption and restart",
+  "date": "2026-09-09",
+  "startup_timeout_ms": 3000,
+  "web": {
+    "health": { "status": 200, "body": { "service": "web", "status": "ok" } },
+    "readiness": {
+      "status": 503,
+      "body": {
+        "service": "web",
+        "status": "not_ready",
+        "dependencies": {
+          "database": { "state": "missing", "reason": "configuration_missing" }
+        }
+      }
+    }
+  },
+  "worker": {
+    "health": { "status": 200, "body": { "service": "worker", "status": "ok" } },
+    "readiness": {
+      "status": 503,
+      "body": {
+        "service": "worker",
+        "status": "not_ready",
+        "dependencies": {
+          "database": {
+            "state": "configured_unverified",
+            "reason": "connectivity_not_probed"
+          }
+        }
+      }
+    },
+    "restart_health": { "status": 200, "body": { "service": "worker", "status": "ok" } }
+  },
+  "interruption": "worker process was force-stopped, waited to exit, restarted on the same port, and probed successfully",
+  "cleanup": "web and restarted worker were stopped in finally; netstat showed TIME_WAIT connections only and no LISTENING process",
+  "redaction": "all environment values omitted",
+  "supersedes": "the earlier smoke artifact that incorrectly treated configuration presence as readiness"
+}

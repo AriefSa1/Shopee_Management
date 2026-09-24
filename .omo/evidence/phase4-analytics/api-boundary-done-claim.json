@@ -1,0 +1,8 @@
+{
+  "lane": "phase4-analytics-api-boundary",
+  "scope": "packages/analytics/src",
+  "tests": { "command": "node --experimental-strip-types --test packages/analytics/src/analytics-api.test.ts packages/analytics/src/analytics.test.ts", "passed": 12, "failed": 0 },
+  "manual": { "command": "node --experimental-strip-types packages/analytics/src/manual-analytics-api.ts", "status": 200, "networkCalls": 0, "databaseCalls": 0, "shopeeMutations": 0, "secretFieldsPresent": false, "writeEnabled": false },
+  "verdict": "confirmed_for_bounded_read_only_api_contract",
+  "production_gates": ["durable_postgresql_read", "real_authentication_session", "official_shopee_capability", "deployed_staging_validation"]
+}

@@ -1,0 +1,10 @@
+{
+  "scenario": "catalog-read-api-fixture",
+  "status": 200,
+  "completeness": "complete",
+  "outOfStockProductIds": ["manual-api-zero"],
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "secretFieldsPresent": false
+}

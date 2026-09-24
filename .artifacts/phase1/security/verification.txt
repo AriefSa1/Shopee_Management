@@ -1,0 +1,63 @@
+Phase 1 security and observability verification
+Date: 2026-09-09 Asia/Jakarta
+
+Fail-first proof
+  Invocation: node --experimental-strip-types --test packages/observability/src/safe-telemetry.test.ts packages/runtime-boundaries/src/runtime-boundaries.test.ts packages/runtime-boundaries/src/package-boundaries.test.ts
+  Before implementation observable: exit code 1; safe-telemetry.ts and runtime-boundaries.ts each produced ERR_MODULE_NOT_FOUND. See red-tests.txt.
+
+Targeted automated scenarios
+  Invocation: node --experimental-strip-types --test packages/observability/src/safe-telemetry.test.ts packages/runtime-boundaries/src/runtime-boundaries.test.ts packages/runtime-boundaries/src/package-boundaries.test.ts
+  Binary observable: exit code 0; tests 9; suites 3; pass 9; fail 0; skipped 0.
+  Scenario: secret canary and raw upstream payload redaction.
+  Observable: safe result kind=untrusted_record_redacted and serialized output lacks the canary and raw payload field.
+  Scenario: authorization header and cookie removal.
+  Observable: serialized safe result lacks both field names and all credential values.
+  Scenario: oversized untrusted error and prompt-injection-like content.
+  Observable: fixed code=untrusted_error, truncated=true, serialized output length below 160, no unsafe text.
+  Scenario: finite telemetry event with request-to-attempt correlation chain.
+  Observable: audit record exposes request_id, confirmation_id, intent_id, command_id, outbox_id, queue_lease_id, attempt_id only.
+  Scenario: web secret-provider denial and stale policy denial.
+  Observable: web returns capability_denied and throws RuntimeCapabilityDeniedError through the worker-secret-provider entrypoint; stale phase0_v1 returns policy_version_mismatch.
+  Scenario: package-boundary import contracts.
+  Observable: static assertions found no non-worker secret-provider import and no app/Shopee-adapter dependency from foundational safety packages.
+
+Source parse checks
+  Invocation: node --experimental-strip-types --check packages/observability/src/safe-telemetry.ts
+  Invocation: node --experimental-strip-types --check packages/runtime-boundaries/src/runtime-boundaries.ts
+  Invocation: node --experimental-strip-types --check packages/runtime-boundaries/src/worker-secret-provider.ts
+  Binary observable: all three exit code 0.
+
+Manual QA
+  Artifact: .artifacts/phase1/security/manual-security.json
+  Observable: direct entrypoint driver returned all redaction booleans true, complete correlation keys, web capability_denied, stale policy_version_mismatch, and typed denial throw.
+
+Repository typecheck and lint status
+  Invocation: pnpm run typecheck; pnpm run lint.
+  Binary observable: both exit code 1 before TypeScript or Biome execute because pnpm attempts an install and cannot create workspace _tmp files under this managed filesystem.
+  Fallback invocation: pnpm install --dir <temporary external dependency root> --lockfile-dir <workspace> --frozen-lockfile.
+  Binary observable: registry package retrieval was denied with EACCES, so no external dependency root or source copy was retained.
+  Result: focused tests and source parser validation are passed; full typecheck/lint are host-environment blocked and are not claimed as passed.
+
+Scope and cleanup
+  New source is confined to packages/observability/** and packages/runtime-boundaries/**.
+  New evidence is confined to .artifacts/phase1/security/** and .omo/evidence/phase1-security/**.
+  No docs/** or .omx/** file was edited. No real credentials, external calls, or external writes were used.
+  The temporary external dependency-validation root was removed and Test-Path returned False.
+
+Hardening regression scenarios
+  Invocation: node --experimental-strip-types --test packages/observability/src/safe-telemetry.test.ts
+  Binary observable: exit code 0; tests 7; pass 7; fail 0; skipped 0.
+  Scenario: runtime mutation adds authorization/prompt fields and replaces an allowlisted value with a secret-shaped value.
+  Observable: record.attributes={} and serialized output contains neither field names nor the secret canary.
+  Scenario: enumerable getter throws when inspected by an untrusted-record summary.
+  Observable: observedFieldCount=1, truncated=false, no exception, and no secret canary in serialized output.
+  Scenario: proxy enumeration trap throws.
+  Observable: fixed bounded fallback observedFieldCount=64, truncated=true, no exception, and no secret canary.
+
+Fresh manual probe
+  Invocation: node --experimental-strip-types --input-type=module --eval <runtime attribute and getter probe>
+  Binary observable: exit code 0; JSON output was {"attributes":{},"secretAbsent":true,"getterSummary":{"kind":"untrusted_record_redacted","observedFieldCount":1,"truncated":false},"getterSecretAbsent":true}.
+
+Validation gap after hardening
+  Invocation: node --experimental-strip-types C:\\Users\\Kuda\\.codex\\plugins\\cache\\sisyphuslabs\\omo\\4.19.4\\skills\\programming\\scripts\\typescript\\check-no-excuse-rules.ts packages/observability/src/safe-telemetry.ts packages/observability/src/safe-telemetry.test.ts
+  Binary observable: exit code 1 before analysis because the caller project has no resolvable `typescript` package; no dependency install was attempted.

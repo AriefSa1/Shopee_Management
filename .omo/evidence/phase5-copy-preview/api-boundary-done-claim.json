@@ -1,0 +1,44 @@
+{
+  "phase": "phase5",
+  "slice": "copy_preview_api_boundary",
+  "verdict": "confirmed_bounded_read_only_slice",
+  "source": [
+    "packages/copy-preview/src/copy-preview-api.ts",
+    "packages/copy-preview/src/copy-preview-api.test.ts",
+    "packages/copy-preview/src/manual-copy-preview-api.ts"
+  ],
+  "sourceSha256": {
+    "packages/copy-preview/src/copy-preview-api.ts": "AD4B93174A3704E4FC2BEFF6F6735B06418FF15F649D75FB1F158AA8BC5EBA35",
+    "packages/copy-preview/src/copy-preview-api.test.ts": "C00B5C438BEA8BF6710AD3871A90251E4F4D33EB05A64781844EE9780B7BFD33",
+    "packages/copy-preview/src/manual-copy-preview-api.ts": "0206EAAE36682D5968978E0365FD32613AB304E96ECDB7FEF2D53628F78A9110"
+  },
+  "tests": {
+    "command": "node --experimental-strip-types --test packages/copy-preview/src/copy-preview.test.ts packages/copy-preview/src/copy-preview-api.test.ts",
+    "passed": 10,
+    "failed": 0
+  },
+  "manual": {
+    "command": "node --experimental-strip-types packages/copy-preview/src/manual-copy-preview-api.ts",
+    "artifact": ".artifacts/phase5/copy-preview/manual-copy-preview-api.json",
+    "status": 200,
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "secretFieldsPresent": false
+  },
+  "noExternalEffects": {
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "cookiesRead": false,
+    "secretsRead": false,
+    "writeAdapterEnabled": false
+  },
+  "remaining_gates": [
+    "durable PostgreSQL persistence",
+    "production authentication/session verification",
+    "official Shopee capability evidence",
+    "explicit confirmation workflow",
+    "outbox dispatch and write adapter"
+  ]
+}

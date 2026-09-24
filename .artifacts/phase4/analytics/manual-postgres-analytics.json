@@ -1,0 +1,14 @@
+{
+  "scenario": "analytics-postgres-persistence-contract",
+  "saveRead": true,
+  "numericZeroPreserved": true,
+  "collectionStatePreserved": true,
+  "evidencePreserved": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "kmsCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

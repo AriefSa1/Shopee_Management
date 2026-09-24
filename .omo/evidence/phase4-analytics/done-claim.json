@@ -1,0 +1,39 @@
+{
+  "lane": "phase4_analytics_contracts",
+  "status": "ready_for_independent_verification",
+  "scope": [
+    "packages/analytics/**",
+    ".artifacts/phase4/analytics/manual-analytics.json",
+    ".omo/evidence/phase4-analytics/**"
+  ],
+  "redTest": {
+    "invocation": "node --experimental-strip-types --test packages/analytics/src/analytics.test.ts",
+    "observableBeforeFinalBoundary": "capability contradiction test failed with Missing expected exception"
+  },
+  "automatedScenario": {
+    "invocation": "node --experimental-strip-types --test packages/analytics/src/analytics.test.ts",
+    "exitCode": 0,
+    "passed": 8,
+    "failed": 0
+  },
+  "manualScenario": {
+    "invocation": "node --experimental-strip-types packages/analytics/src/manual-analytics.ts | ConvertFrom-Json | ConvertTo-Json -Compress",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase4/analytics/manual-analytics.json",
+    "observable": "partial run preserves zero, marks omitted product not_returned, and blocks comparison"
+  },
+  "semanticsCovered": {
+    "zero": "explicit numeric 0 remains value",
+    "missing": "enabled metric field absent after a complete item result",
+    "unsupported": "capability-gated and rejected when paired with enabled capability",
+    "notReturned": "required product omitted from a partial collection",
+    "stale": "numeric as-of value exceeds supplied deterministic tolerance",
+    "comparison": "requires complete runs, compatible definition/version/unit/window/organization, numeric states, and fresh snapshots"
+  },
+  "toolingGap": "pnpm run typecheck and pnpm run lint both failed before validation because managed filesystem policy blocked pnpm temporary dependency setup with ENOENT; no local tsc or biome binary exists.",
+  "externalWrites": false,
+  "residualRisks": [
+    "Official Shopee metric availability, fields, windows, as-of semantics, and pagination remain capability/staging gates.",
+    "PostgreSQL persistence and authenticated analytics API/UI are intentionally outside this provider-fixture contract slice."
+  ]
+}

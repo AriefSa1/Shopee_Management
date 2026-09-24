@@ -1,0 +1,11 @@
+{
+  "scenario": "worker-only-oauth-refresh-rotation",
+  "result": "rotated",
+  "providerCalls": 1,
+  "plaintextReturned": false,
+  "outcomeUnknownRecovery": "reauth_required",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0
+}

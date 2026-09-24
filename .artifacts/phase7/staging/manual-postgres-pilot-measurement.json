@@ -1,0 +1,14 @@
+{
+  "scenario": "postgres-pilot-measurement-persistence-contract",
+  "saveRead": "passed",
+  "organizationScope": "passed",
+  "outcomeFrozen": true,
+  "immutableMigration": true,
+  "statements": 2,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

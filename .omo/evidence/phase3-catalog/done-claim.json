@@ -1,0 +1,29 @@
+{
+  "lane": "phase3_catalog_contracts",
+  "status": "ready_for_independent_verification",
+  "scope": [
+    "packages/catalog/**",
+    ".artifacts/phase3/catalog/manual-catalog.json",
+    ".omo/evidence/phase3-catalog/**"
+  ],
+  "automatedScenario": {
+    "invocation": "node --experimental-strip-types --test packages/catalog/src/catalog.test.ts",
+    "exitCode": 0,
+    "observable": "7 focused catalog contract tests passed"
+  },
+  "manualScenario": {
+    "invocation": "node --experimental-strip-types packages/catalog/src/manual-catalog.ts",
+    "artifact": ".artifacts/phase3/catalog/manual-catalog.json",
+    "observable": "complete fixture distinguishes zero stock from not-returned stock with no network or mutation"
+  },
+  "limitations": [
+    "No local TypeScript or Biome binary was available in this managed workspace.",
+    "Live Shopee capability, rate-limit, and pagination behavior remains an external Phase 3 gate.",
+    "PostgreSQL persistence is intentionally outside this fixture-contract lane."
+  ],
+  "sources": {
+    "packages/catalog/src/catalog.ts": "C179CABBE8568AFAB1DB352B56A4461A598629B25C62399149CD390B538C77E8",
+    "packages/catalog/src/catalog.test.ts": "0BCD1F3E578A12A798DF422F4A4C212E9A133A0521FF704BE09C17976F08F260",
+    "packages/catalog/src/manual-catalog.ts": "C13DEF61ED4EE4572DF51E5A8D252D73BC0B871AF29A4221918E8A556108D061"
+  }
+}

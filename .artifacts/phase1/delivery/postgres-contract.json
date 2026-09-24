@@ -1,0 +1,20 @@
+{
+  "executor": "deterministic-fake-postgres-executor",
+  "livePostgres": "not_run",
+  "semantics": "at-least-once",
+  "targetedTestInvocation": "node --experimental-strip-types --test packages/delivery/src/postgres-delivery.test.ts",
+  "targetedTestResult": {
+    "exitCode": 0,
+    "passed": 5,
+    "failed": 0
+  },
+  "scenarios": [
+    "atomic outbox-to-queue dispatch with outbox_event_id conflict dedupe",
+    "organization-scoped dispatch and dedupe migration constraints",
+    "FOR UPDATE SKIP LOCKED lease claim and current-time expiry fencing",
+    "UUID scheduler trigger identity with advisory lock and unique slot",
+    "dead-letter replay creates one new queue job for an immutable command"
+  ],
+  "cleanup": "fake executor state discarded after process exit",
+  "externalWrites": false
+}

@@ -1,0 +1,30 @@
+{
+  "status": "done_with_live_db_gap",
+  "lane": "phase1-delivery-postgres-contract",
+  "implementation": [
+    "packages/delivery/src/postgres-delivery.ts",
+    "packages/delivery/src/postgres-delivery-mappers.ts",
+    "packages/delivery/src/postgres-delivery-recovery.ts",
+    "packages/delivery/src/postgres-delivery.fake.ts",
+    "packages/delivery/src/postgres-delivery.test.ts"
+  ],
+  "combinedTests": {
+    "invocation": "node --experimental-strip-types --test packages/delivery/src/contracts.test.ts packages/delivery/src/delivery.test.ts packages/delivery/src/recovery.test.ts packages/delivery/src/postgres-delivery.test.ts",
+    "exitCode": 0,
+    "passed": 17,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "simulatedPostgres": {
+    "invocation": "node --experimental-strip-types --test packages/delivery/src/postgres-delivery.test.ts",
+    "exitCode": 0,
+    "passed": 5,
+    "artifact": ".artifacts/phase1/delivery/postgres-contract.json"
+  },
+  "manualArtifact": ".artifacts/phase1/delivery/manual-queue.json",
+  "livePostgres": "not_run",
+  "typecheckLint": "blocked before tsc/Biome by managed pnpm dependency ENOENT; no local binaries",
+  "externalWrites": false,
+  "evidence": ".omo/evidence/phase1-delivery/postgres-verification.md"
+}

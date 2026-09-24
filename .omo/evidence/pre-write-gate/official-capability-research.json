@@ -1,0 +1,73 @@
+{
+  "schema_version": 1,
+  "title": "Shopee pre-write capability research",
+  "retrieved_on": "2026-09-10",
+  "timezone": "Asia/Jakarta",
+  "source_policy": "Official Shopee Open Platform documentation only",
+  "network_or_api_calls_made": false,
+  "entry_point": {
+    "url": "https://open.shopee.com/developer-guide/4",
+    "retrieval_status": "inaccessible",
+    "http_status": 403,
+    "retrieval_result": "Forbidden (rechecked 2026-09-10)",
+    "linked_pages_discovered": false
+  },
+  "pre_write_decision": "deny_writes_until_all_gates_are_officially_verified",
+  "gates": [
+    {
+      "id": "oauth_permissions",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["authorization flow", "scopes or permissions", "token lifecycle", "shop ownership", "callback requirements"]
+    },
+    {
+      "id": "product_add_edit",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["official product mutation endpoints", "request signing and version", "mutation constraints", "response semantics"]
+    },
+    {
+      "id": "mediaspace_lifecycle",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["upload and finalization lifecycle", "media ownership and reuse", "expiration", "supported media types"]
+    },
+    {
+      "id": "mandatory_product_fields",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["required base fields", "validation rules", "seller or account dependent requirements"]
+    },
+    {
+      "id": "category_attributes",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["category lookup", "required attributes", "allowed values", "validation and versioning"]
+    },
+    {
+      "id": "rate_limits",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["per endpoint limits", "per app or shop limits", "headers or error responses", "backoff guidance"]
+    },
+    {
+      "id": "visibility_publish",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["draft or publish state model", "visibility controls", "validation before publish"]
+    },
+    {
+      "id": "variations_media_logistics",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["variant model", "image association", "stock and price requirements", "shipping or logistics correlation"]
+    },
+    {
+      "id": "recovery_idempotency",
+      "status": "unknown",
+      "official_urls_checked": ["https://open.shopee.com/developer-guide/4"],
+      "verification_needed": ["idempotency support", "request identity", "eventual consistency", "error classification", "safe retry and reconciliation"]
+    }
+  ],
+  "caveat": "The 403 response means no capability is confirmed or ruled out. No inference was made from non-official sources, credentials, or API experimentation."
+}

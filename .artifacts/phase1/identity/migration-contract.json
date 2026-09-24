@@ -1,0 +1,23 @@
+{
+  "migration": "db/migrations/0001_identity.sql",
+  "testCommand": "node --experimental-strip-types --test packages/identity/src/migration-contract.test.ts",
+  "exitCode": 0,
+  "testsPassed": 2,
+  "testsFailed": 0,
+  "adversarialProbes": {
+    "unscopedSubjectShopArrayAbsent": true,
+    "auditEventShopOrganizationForeignKey": true,
+    "auditEventShopParentOrganizationForeignKey": true,
+    "nonAuthorizationSubjectRejected": true,
+    "childUpdateDeleteRejected": true,
+    "parentUpdateDeleteRejected": true
+  },
+  "databaseValidation": {
+    "attempted": true,
+    "result": "blocked",
+    "command": "initdb.exe + pg_ctl.exe temporary local cluster",
+    "observed": "pg_ctl: could not create restricted token: error code 87",
+    "cleanup": "temporary cluster removed; no server started"
+  },
+  "passed": true
+}

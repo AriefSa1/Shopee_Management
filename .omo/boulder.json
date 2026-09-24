@@ -1,0 +1,14 @@
+{
+  "schema_version": 2,
+  "active_work_id": "shopee-management-implementation",
+  "works": {
+    "shopee-management-implementation": {
+      "work_id": "shopee-management-implementation",
+      "active_plan": ".omx/plans/shopee-management-implementation.md",
+      "plan_name": "shopee-management-implementation",
+      "session_ids": ["codex:01a08207-d1fb-7c41-aa13-9ab1db1f52a2"],
+      "status": "active",
+      "worktree_path": null
+    }
+  }
+}

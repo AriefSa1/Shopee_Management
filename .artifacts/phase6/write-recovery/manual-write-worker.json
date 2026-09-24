@@ -1,0 +1,12 @@
+{
+  "scenario": "confirmed-write-worker-provider-free",
+  "result": "succeeded",
+  "steps": 4,
+  "externalAttemptsPersisted": 4,
+  "outcomeUnknownRetry": "blocked",
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false
+}

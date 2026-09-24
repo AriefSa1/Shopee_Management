@@ -1,0 +1,1 @@
+{"scenario":"local-copy-preview-with-supersede-and-zero-mutation","previewKind":"valid","previewHash":"00ca14a4ed37758c31b5cd1f52901c811fc0447e8fb34b00f583dd04715b9cc9","destinationPreviewKinds":["valid","valid"],"supersedeKind":"superseded","commandVersion":2,"adapter":{"mode":"read_only","preConfirmationShopeeMutationTotal":0},"networkCalls":0,"secretFieldsPresent":false}

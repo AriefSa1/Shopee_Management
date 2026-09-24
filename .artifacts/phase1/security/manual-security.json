@@ -1,0 +1,56 @@
+{
+  "scenario": "Phase 1 safe telemetry and runtime-boundary manual entrypoint probe",
+  "date": "2026-09-09",
+  "invocation": "node --experimental-strip-types --input-type=module --eval <safe telemetry and runtime capability driver>",
+  "redaction": {
+    "secret_canary_absent": true,
+    "prompt_injection_text_absent": true,
+    "authorization_field_absent": true,
+    "cookie_field_absent": true,
+    "runtime_attribute_allowlist_enforced": true,
+    "runtime_attribute_secret_absent": true,
+    "enumerable_getter_not_invoked": true,
+    "safe_record": {
+      "kind": "untrusted_record_redacted",
+      "observedFieldCount": 6,
+      "truncated": false
+    },
+    "safe_error": {
+      "code": "untrusted_error",
+      "truncated": true
+    }
+  },
+  "correlation": {
+    "keys": [
+      "request_id",
+      "confirmation_id",
+      "intent_id",
+      "command_id",
+      "outbox_id",
+      "queue_lease_id",
+      "attempt_id"
+    ],
+    "chain_complete": true
+  },
+  "runtime_boundaries": {
+    "web_secret_provider": {
+      "allowed": false,
+      "reason": "capability_denied"
+    },
+    "stale_worker_policy": {
+      "allowed": false,
+      "reason": "policy_version_mismatch"
+    },
+    "web_denial_throws_typed_error": true
+  },
+  "adversarial_probes": {
+    "malformed_untrusted_error": "pass: fixed safe error code and bounded output",
+    "prompt_injection_like_log_content": "pass: input text omitted",
+    "stale_policy_version": "pass: denied before allowlist evaluation",
+    "misleading_safe_output_claim": "pass: assertions inspected serialized values, not an implementation claim",
+    "runtime_any_attribute_injection": "pass: unknown authorization and prompt fields plus an unsafe allowlisted value produce empty attributes",
+    "throwing_enumerable_getter": "pass: descriptor-based traversal records field count without invoking the getter",
+    "real_credentials_or_external_writes": "not_used"
+  },
+  "cleanup": "Temporary external dependency-validation directory was deleted after pnpm was blocked; no processes, credentials, cookies, OAuth values, or external writes were created."
+}

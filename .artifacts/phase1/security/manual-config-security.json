@@ -1,0 +1,17 @@
+{
+  "scenario": "phase1-config-security-manual",
+  "modes": ["migration", "readonly-support"],
+  "diagnostics": {
+    "mode": "worker",
+    "status": "invalid",
+    "fieldNames": ["DATABASE_URL", "WORKER_PORT"]
+  },
+  "secretScan": {
+    "findingCount": 2,
+    "valuesExposed": false
+  },
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "secretFieldsPresent": false
+}

@@ -1,0 +1,19 @@
+{
+  "scenario": "postgres-staging-persistence-contract",
+  "executor": "deterministic-fake-postgres-executor",
+  "saveRead": "passed",
+  "compositeScopeIsolation": "passed",
+  "numericZeroPreserved": "passed",
+  "unavailableStatePreserved": "passed",
+  "migrationContract": "passed",
+  "statements": 10,
+  "externalEffects": {
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "kmsCalls": 0,
+    "externalWrites": 0
+  },
+  "livePostgres": "not_run",
+  "secretFieldsPresent": false
+}

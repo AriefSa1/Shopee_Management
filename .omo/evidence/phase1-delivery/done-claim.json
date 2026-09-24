@@ -1,0 +1,23 @@
+{
+  "status": "done",
+  "lane": "phase1-delivery-outbox",
+  "semantics": "at-least-once",
+  "targetedTests": {
+    "invocation": "node --experimental-strip-types --test packages/delivery/src/contracts.test.ts packages/delivery/src/delivery.test.ts packages/delivery/src/recovery.test.ts",
+    "exitCode": 0,
+    "passed": 12,
+    "failed": 0,
+    "cancelled": 0,
+    "skipped": 0
+  },
+  "manualCli": {
+    "invocation": "node --experimental-strip-types packages/delivery/src/manual-queue.ts",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase1/delivery/manual-queue.json",
+    "transitionCount": 12
+  },
+  "migration": "db/migrations/0002_delivery.sql",
+  "toolingGap": "pnpm typecheck could not start because managed dependency state failed with ENOENT before tsc; local tsc and Biome binaries were absent",
+  "externalWrites": false,
+  "evidence": ".omo/evidence/phase1-delivery/verification.md"
+}

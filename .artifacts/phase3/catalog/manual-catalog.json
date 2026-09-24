@@ -1,0 +1,1 @@
+{"scenario":"catalog-provider-fixture","completeness":"complete","outOfStockProductIds":["manual-zero"],"notReturnedProductIds":["manual-not-returned"],"networkCalls":0,"shopeeMutations":0,"secretFieldsPresent":false}

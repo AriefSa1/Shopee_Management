@@ -1,0 +1,23 @@
+{
+  "phase": "phase2-oauth",
+  "slice": "provider-free-durable-contracts",
+  "verdict": "confirmed",
+  "tests": {
+    "focused": { "passed": 4, "failed": 0 },
+    "combined_oauth": { "passed": 17, "failed": 0 }
+  },
+  "manualArtifact": ".artifacts/phase2/oauth/manual-oauth-durable.json",
+  "sourceHashes": {
+    "packages/oauth/src/durable-contracts.ts": "E49331279C649B8F9B257218B910CD0AE64110E3D4A630BF0EE91D3EAB43B6BC",
+    "packages/oauth/src/durable-contracts.test.ts": "12011A6C74BF93EF2EF50435F90916063C413C63D26601CF8C34219A5FE1A43D",
+    "packages/oauth/src/manual-oauth-durable.ts": "4C5D9EE8BB2FDD713A2698A0A0B65A6D1049CF64DCDF2E0B5BCC6DBF5B12E2BD"
+  },
+  "remainingGates": [
+    "postgres_durable_persistence",
+    "kms_backed_envelope",
+    "oauth_route_wiring",
+    "worker_deployment",
+    "official_provider_refresh",
+    "staging_validation"
+  ]
+}

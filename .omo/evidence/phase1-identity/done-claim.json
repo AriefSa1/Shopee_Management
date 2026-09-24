@@ -1,0 +1,63 @@
+{
+  "claim": "Phase 1 identity, RBAC, audit, and organization-scoped audit-subject migration lane is complete within assigned scope.",
+  "status": "done",
+  "scope": [
+    "packages/identity/src/manual-rbac.ts",
+    "packages/identity/**",
+    "packages/audit/**",
+    "db/migrations/0001_identity.sql",
+    ".artifacts/phase1/identity/**",
+    ".omo/evidence/phase1-identity/**"
+  ],
+  "manualQa": {
+    "command": "node --experimental-strip-types packages/identity/src/manual-rbac.ts",
+    "boundMs": 3000,
+    "exitCode": 0,
+    "artifact": ".artifacts/phase1/identity/manual-rbac.json",
+    "parsed": true,
+    "scenarioCount": 7
+  },
+  "tests": {
+    "command": "node --experimental-strip-types --test packages/identity/src/authorize.test.ts packages/identity/src/boundary.test.ts packages/identity/src/migration-contract.test.ts packages/audit/src/audit-event.test.ts",
+    "exitCode": 0,
+    "passed": 12,
+    "failed": 0
+  },
+    "parser": {
+    "command": "node --experimental-strip-types --check packages/identity/src/manual-rbac.ts",
+    "exitCode": 0
+  },
+  "migration": {
+    "file": "db/migrations/0001_identity.sql",
+    "testCommand": "node --experimental-strip-types --test packages/identity/src/migration-contract.test.ts",
+    "exitCode": 0,
+    "passed": 2,
+    "failed": 0,
+    "artifact": ".artifacts/phase1/identity/migration-contract.json",
+    "databaseAttempt": "blocked before startup: pg_ctl restricted-token error 87; temporary cluster cleaned"
+  },
+  "adversarialClasses": {
+    "revokedMembership": "pass",
+    "staffPublication": "pass",
+    "crossOrganizationShop": "pass",
+    "staleAuthzRevision": "pass",
+    "malformedBoundaryInput": "pass",
+    "auditSecretField": "pass",
+    "auditSubjectShopOrganizationFk": "pass: composite child-table foreign key",
+    "auditSubjectNonAuthorization": "pass: insert trigger",
+    "auditSubjectAppendOnly": "pass: parent and child mutation triggers",
+    "hungCommand": "replaced_with_bounded_stdout_surface",
+    "misleadingSuccessOutput": "pass",
+    "cleanup": "pass: no external resources or temporary resources"
+  },
+  "residualRisks": [
+    "pnpm typecheck and Biome were blocked before execution by managed-filesystem ENOENT during pnpm install; standalone tsc and biome binaries are unavailable.",
+    "Manual entrypoint emits JSON to stdout; artifact capture is materialized in evidence because runtime writes to the managed artifact directory are unavailable."
+  ],
+  "evidence": [
+    ".artifacts/phase1/identity/manual-rbac.json",
+    ".artifacts/phase1/identity/migration-contract.json",
+    ".omo/evidence/phase1-identity/summary.md",
+    ".omo/evidence/phase1-identity/debug-journal.md"
+  ]
+}

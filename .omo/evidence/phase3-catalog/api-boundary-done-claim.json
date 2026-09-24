@@ -1,0 +1,14 @@
+{
+  "phase": "phase3-catalog-api-boundary",
+  "scope": "read-only provider-fixture HTTP contract",
+  "verdict": "complete_for_bounded_slice",
+  "sourceHashes": {
+    "packages/catalog/src/catalog-api.ts": "26C6A325D9E8578C5392CC89EC22A07E25864B01215FE1DF253C5F429B365D7D",
+    "packages/catalog/src/catalog-api.test.ts": "ADD53432BDAC912206C0AAF6A60B1BB211DD53C9A0C9D2C0D6D2D9A78F93CC9C",
+    "packages/catalog/src/manual-catalog-api.ts": "0E8BE667E9C2791E70C4FDF21BAD2F980FAB108D554CA93574DD92CD6B20E905",
+    "apps/web/src/app.ts": "79DAC02877B314CA78C2A58D179ECD962D764C2F7299DB3CC3879889FCEB6EFF"
+  },
+  "tests": { "command": "node --experimental-strip-types --test packages/catalog/src/catalog-api.test.ts", "passed": 3, "failed": 0 },
+  "manualQa": { "command": "node --experimental-strip-types packages/catalog/src/manual-catalog-api.ts", "status": 200, "complete": true, "networkCalls": 0, "databaseCalls": 0, "shopeeMutations": 0, "secretFieldsPresent": false },
+  "remainingGates": ["official Shopee capability verification", "PostgreSQL persistence", "production authentication integration", "UI deployment", "write/copy confirmation and outbox flow"]
+}

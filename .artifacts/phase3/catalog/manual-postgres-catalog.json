@@ -1,0 +1,18 @@
+{
+  "scenario": "postgres-catalog-provider-free-contract",
+  "saveRead": true,
+  "variantRoundTrip": true,
+  "organizationShopIsolation": true,
+  "numericZeroPreserved": true,
+  "missingStockPreserved": true,
+  "partialRunPreserved": true,
+  "incompleteRunDoesNotInferDeletion": true,
+  "migrationContract": true,
+  "networkCalls": 0,
+  "databaseCalls": 0,
+  "shopeeMutations": 0,
+  "kmsCalls": 0,
+  "externalWrites": 0,
+  "secretFieldsPresent": false,
+  "livePostgres": "not_run"
+}

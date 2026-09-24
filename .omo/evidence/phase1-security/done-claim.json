@@ -1,0 +1,32 @@
+{
+  "claim": "Phase 1 safe telemetry and runtime package-boundary lane is complete within assigned scope.",
+  "source": [
+    "packages/observability/src/safe-telemetry.ts",
+    "packages/runtime-boundaries/src/runtime-boundaries.ts",
+    "packages/runtime-boundaries/src/worker-secret-provider.ts"
+  ],
+  "tests": [
+    "packages/observability/src/safe-telemetry.test.ts",
+    "packages/runtime-boundaries/src/runtime-boundaries.test.ts",
+    "packages/runtime-boundaries/src/package-boundaries.test.ts"
+  ],
+  "success_criteria": {
+    "secret_canary_redaction": "passed",
+    "authorization_and_cookie_removal": "passed",
+    "oversized_untrusted_error_suppression": "passed",
+    "correlation_chain": "passed",
+    "web_secret_capability_denial": "passed",
+    "stale_policy_denial": "passed",
+    "worker_only_secret_provider_entrypoint": "passed",
+    "static_package_import_contracts": "passed",
+    "runtime_attribute_allowlist": "passed",
+    "throwing_getter_fail_closed": "passed",
+    "manual_entrypoint_probe": ".artifacts/phase1/security/manual-security.json"
+  },
+  "validation_gaps": {
+    "repository_typecheck": "host-blocked before tsc executes",
+    "repository_lint": "host-blocked before Biome executes",
+    "typescript_rule_checker": "host-blocked because the caller project has no resolvable typescript package"
+  },
+  "evidence": ".artifacts/phase1/security/verification.txt"
+}

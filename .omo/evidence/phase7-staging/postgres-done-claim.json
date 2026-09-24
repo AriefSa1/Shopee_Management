@@ -1,0 +1,58 @@
+{
+  "task": "phase7-postgres-staging-persistence-contract",
+  "scope": "provider-free PostgreSQL-shaped staging snapshot persistence only",
+  "status": "done_for_bounded_slice",
+  "sourceFiles": [
+    "packages/staging/src/postgres-staging.ts",
+    "packages/staging/src/postgres-staging.fake.ts",
+    "packages/staging/src/postgres-staging.test.ts",
+    "packages/staging/src/manual-postgres-staging.ts",
+    "db/migrations/0003_staging.sql"
+  ],
+  "test": {
+    "command": "node --experimental-strip-types --test packages/staging/src/postgres-staging.test.ts",
+    "exitCode": 0,
+    "passCount": 4,
+    "failCount": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "todo": 0
+  },
+  "manualQa": {
+    "command": "node --experimental-strip-types packages/staging/src/manual-postgres-staging.ts",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase7/staging/manual-postgres-staging.json",
+    "results": {
+      "saveRead": "passed",
+      "compositeScopeIsolation": "passed",
+      "numericZeroPreserved": "passed",
+      "unavailableStatePreserved": "passed",
+      "migrationContract": "passed",
+      "statements": 10,
+      "livePostgres": "not_run",
+      "secretFieldsPresent": false
+    }
+  },
+  "externalEffects": {
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "kmsCalls": 0,
+    "externalWrites": 0
+  },
+  "sourceHashes": {
+    "packages/staging/src/manual-postgres-staging.ts": "76c1241f1999ac6966696c8f9e68a5d9f7948f65e12a7a15ff3cafcdc00dab03",
+    "packages/staging/src/postgres-staging.ts": "744efc63a352de28d81ca6f8860ae75fb50a6c7239441f325acd0833cc67f2a7",
+    "packages/staging/src/postgres-staging.test.ts": "886ac8a6b30d07cbbc836d9a80aec4c133b1a8f1500c814bf60a99fc48337055",
+    "packages/staging/src/model.ts": "12f57b51d871273cbec1ce8480f81827e5474d91ffbc71ff1ff9077130ce90db"
+  },
+  "remainingGates": [
+    "live PostgreSQL migrations, grants, locking, fencing, and recovery validation",
+    "production KMS and secret-provider integration",
+    "deployment",
+    "real session/authentication and durable staging state-reader composition",
+    "official Shopee capability evidence",
+    "confirmed write worker",
+    "explicit pilot authorization"
+  ]
+}

@@ -1,0 +1,48 @@
+Phase 1 scaffold verification
+Date: 2026-09-09 Asia/Jakarta
+
+Dependency installation / reproducibility gap
+  Current-workspace invocation: pnpm install --frozen-lockfile
+  Observable: exit code 1; pnpm could not create its atomic _tmp file in the managed workspace.
+  Exact gap: this host's workspace sandbox denies ordinary process file creation in the workspace; apply_patch writes remain available.
+  Dependency-only invocation: pnpm install --dir <external-dependency-root> --frozen-lockfile
+  Observable: exit code 0; 8 packages installed from the frozen lockfile.
+  Verification source: an external `workspace` junction resolved to the actual current workspace. No source copy was used.
+
+Targeted tests
+  Invocation: node --preserve-symlinks --preserve-symlinks-main --experimental-strip-types --test workspace/apps/web/src/app.test.ts workspace/apps/worker/src/app.test.ts workspace/packages/config/src/runtime-config.test.ts
+  Observable: exit code 0; tests 7; suites 3; pass 7; fail 0; skipped 0.
+
+Typecheck / build gate
+  Invocation: node_modules/.bin/tsc.cmd --noEmit --preserveSymlinks --project workspace/tsconfig.json
+  Observable: exit code 0; no diagnostics.
+  Build script: pnpm run build delegates to the strict no-emit compile gate because Node 24 runs the TypeScript entrypoints directly.
+
+Lint
+  Invocation: node_modules/.bin/biome.cmd check --config-path workspace/biome.json workspace/apps workspace/packages workspace/package.json workspace/tsconfig.json
+  Observable: exit code 0; Checked 15 files; no fixes applied.
+
+Fail-closed process startup
+  Invocation: APP_ENV=production with DATABASE_URL absent, then node --preserve-symlinks --preserve-symlinks-main --experimental-strip-types workspace/apps/web/src/main.ts
+  Observable: exit code 1; {"event":"startup_rejected","error":"ConfigValidationError","fields":["DATABASE_URL"]}
+  Secret canary observable: absent from output.
+
+Manual process smoke
+  Invocation: start web on 127.0.0.1:43110 and worker on 127.0.0.1:43111; Invoke-WebRequest /health and /ready; stop/restart worker; probe /health again; stop all in finally.
+  Observable: see manual-smoke.json. Web and worker identify independently; missing and configured-but-unprobed database states both return HTTP 503 with explicit machine-readable reasons.
+
+Adversarial probes
+  malformed_input: PASS - WORKER_PORT malformed value rejected; error names WORKER_PORT and omits value.
+  stale_state: PASS - missing returns configuration_missing/503; configured without a live probe returns configured_unverified/connectivity_not_probed/503.
+  dirty_worktree: NOT_APPLICABLE - Test-Path .git returned False; this workspace is not a Git repository.
+  hung_long_command: PASS - HTTP startup wait was bounded to 3000 ms.
+  misleading_success_output: PASS - probes asserted HTTP status and parsed JSON bodies, not startup log text.
+  mid_operation_interruption: PASS - worker was terminated, waited, restarted, and returned HTTP 200 with service=worker.
+
+Scope and cleanup
+  No docs/** or .omx/** file was edited.
+  No Shopee call, OAuth exchange, credential use, deployment, database connection, or external write occurred.
+  Smoke processes were terminated; ports 43110 and 43111 had no LISTENING owner after cleanup.
+  The old source verification copy was not used for corrected claims and remains removed.
+  The dependency-only root contained no source copy and was removed; receipt: DEPENDENCY_ROOT_REMOVED=True.
+  This file and manual-smoke.json supersede the earlier false-positive readiness evidence.

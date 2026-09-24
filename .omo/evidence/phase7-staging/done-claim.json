@@ -1,0 +1,85 @@
+{
+  "task": "phase7-read-only-staging-contract",
+  "scope": "provider-free staging controls and read-only alpha workflow only",
+  "status": "done_for_bounded_slice",
+  "sourceFiles": [
+    "packages/staging/src/model.ts",
+    "packages/staging/src/controls.ts",
+    "packages/staging/src/measurement.ts",
+    "packages/staging/src/index.ts",
+    "packages/staging/src/staging.test.ts",
+    "packages/staging/src/manual-staging.ts"
+  ],
+  "redProof": {
+    "command": "node --experimental-strip-types --test packages/staging/src/staging.test.ts",
+    "exitCode": 1,
+    "observable": "ERR_MODULE_NOT_FOUND for packages/staging/src/index.ts before implementation"
+  },
+  "greenProof": {
+    "command": "node --experimental-strip-types --test packages/staging/src/staging.test.ts",
+    "exitCode": 0,
+    "passCount": 4,
+    "failCount": 0
+  },
+  "manualQa": {
+    "command": "node --experimental-strip-types packages/staging/src/manual-staging.ts",
+    "exitCode": 0,
+    "artifact": ".artifacts/phase7/staging/manual-staging.json",
+    "observable": "unknown capability produces write_disabled and read-only mutationPolicy blocked with zero external calls"
+  },
+  "apiBoundary": {
+    "sourceFiles": [
+      "packages/staging/src/staging-api.ts",
+      "packages/staging/src/staging-api.test.ts"
+    ],
+    "testCommand": "node --experimental-strip-types --test packages/staging/src/staging.test.ts packages/staging/src/staging-api.test.ts",
+    "exitCode": 0,
+    "passCount": 9,
+    "failCount": 0,
+    "adversarialStatuses": [401, 400, 404, 403, 502],
+    "externalCalls": 0,
+    "scope": "provider-free read-only boundary; conditionally wired to apps/web"
+  },
+  "webComposition": {
+    "sourceFiles": [
+      "apps/web/src/app.ts",
+      "apps/web/src/app.test.ts",
+      "apps/web/src/main.ts"
+    ],
+    "route": "GET /api/staging/alpha",
+    "conditionalAppWiring": true,
+    "mainComposition": "fail_closed_until_server_side_auth_and_state_reader_are_injected",
+    "appTest": {
+      "command": "node --experimental-strip-types --experimental-loader ./.artifacts/verify-loader.mjs --test apps/web/src/app.test.ts apps/worker/src/app.test.ts",
+      "status": "passed_with_external_virtual_store_loader",
+      "passCount": 6,
+      "failCount": 0,
+      "limitation": "standard workspace node_modules installation remains blocked"
+    },
+    "externalEffects": {
+      "networkCalls": 0,
+      "databaseCalls": 0,
+      "shopeeMutations": 0,
+      "secretFieldsPresent": false
+    }
+  },
+  "validationLimitations": [
+    "pnpm typecheck and biome could not bootstrap because managed workspace blocks pnpm _tmp file creation",
+    "no-excuse checker could not resolve project typescript without a local dependency installation"
+  ],
+  "externalEffects": {
+    "networkCalls": 0,
+    "databaseCalls": 0,
+    "shopeeMutations": 0,
+    "credentialsRead": false
+  },
+  "remainingGates": [
+    "standard dependency bootstrap and production app route execution",
+    "production session/authentication and staging state-reader composition",
+    "official capability evidence",
+    "user-approved credentials and deployment",
+    "durable PostgreSQL/KMS/grant validation",
+    "confirmed write worker",
+    "explicit pilot authorization"
+  ]
+}
